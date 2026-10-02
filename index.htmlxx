@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>My First Local Server</title>
+</head>
+<p id="message">Tap the button below 👇🏽</p>
+
+<button onclick="changeText()">Tap Me</button>
+
+<script>
+function changeText() {
+    document.getElementById("message").innerText =
+        "Welcome to Faisal's website! 🔥";
+}
+</script><body>
+<h1>Hello from Faisal!</h1>
+<p>I built this webpage on my Android phone.</p>
+</body>
+</html>

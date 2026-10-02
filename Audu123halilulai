@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>My First Local Server</title>
+</head>
+<body>
+<h1>Hello from Faisal!</h1>
+<p>I built this webpage on my Android phone.</p>
+
+<input id="name" placeholder="Enter your name">
+<button onclick="sayHello()">Say Hello</button>
+
+<p id="message">Tap the button below 👇🏽</p>
+<button onclick="changeText()">Tap Me</button>
+
+<script>
+function changeText() {
+    document.getElementById("message").innerText = "Welcome to Faisal's website! 🔥";
+    document.body.style.backgroundColor = "lightblue";
+}
+
+function sayHello() {
+    let name = document.getElementById("name").value;
+    document.getElementById("message").innerText = "Hello, " + name + "! 👋🏽 Welcome to my website!";
+}
+</script>
+
+</body>
+</html>
