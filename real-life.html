@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>REAL LIFE - Faisal</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #08111f;
+    color: #f8fafc;
+}
+
+header {
+    background: #0f1c2e;
+    padding: 18px;
+    text-align: center;
+    border-bottom: 2px solid #1e3a5f;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 28px;
+}
+
+header p {
+    margin: 6px 0 0;
+    color: #94a3b8;
+}
+
+.container {
+    width: 94%;
+    max-width: 900px;
+    margin: 20px auto;
+}
+
+.panel {
+    background: #0f1c2e;
+    border: 1px solid #243b53;
+    border-radius: 14px;
+    padding: 18px;
+    margin-bottom: 16px;
+}
+
+.stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+}
+
+.stat {
+    background: #16263b;
+    padding: 13px;
+    border-radius: 10px;
+}
+
+.stat strong {
+    display: block;
+    font-size: 20px;
+    margin-top: 4px;
+}
+
+.label {
+    color: #94a3b8;
+    font-size: 13px;
+}
+
+.progress {
+    height: 8px;
+    background: #26384d;
+    border-radius: 20px;
+    overflow: hidden;
+    margin-top: 8px;
+}
+
+.progress div {
+    height: 100%;
+    width: 50%;
+    background: #38bdf8;
+}
+
+.location {
+    font-size: 22px;
+    font-weight: bold;
+    margin-bottom: 6px;
+}
+
+.story {
+    color: #cbd5e1;
+    line-height: 1.6;
+}
+
+button {
+    width: 100%;
+    padding: 14px;
+    margin-top: 9px;
+    border: none;
+    border-radius: 10px;
+    background: #2563eb;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+button:active {
+    transform: scale(0.98);
+}
+
+button.secondary {
+    background: #334155;
+}
+
+button.green {
+    background: #15803d;
+}
+
+button.red {
+    background: #b91c1c;
+}
+
+.actions {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 9px;
+}
+
+.actions button {
+    margin-top: 0;
+}
+
+.message {
+    min-height: 30px;
+    color: #7dd3fc;
+    margin-top: 12px;
+    line-height: 1.5;
+}
+
+.hidden {
+    display: none;
+}
+
+ul {
+    padding-left: 20px;
+}
+
+li {
+    margin-bottom: 8px;
+}
+
+footer {
+    text-align: center;
+    color: #64748b;
+    padding: 25px;
+}
+
+@media (min-width: 700px) {
+    .stats {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>🌍 REAL LIFE</h1>
+    <p>Your choices. Your money. Your future.</p>
+</header>
+
+<div class="container">
+
+    <div class="panel">
+        <div class="location" id="location">Accra</div>
+        <div class="story" id="story">
+            Welcome to your new life. You have very little money,
+            no car and no house. Your future depends on the decisions
+            you make.
+        </div>
+    </div>
+
+    <div class="panel">
+
+        <div class="stats">
+
+            <div class="stat">
+                <span class="label">Money</span>
+                <strong>₵<span id="money">500</span></strong>
+            </div>
+
+            <div class="stat">
+                <span class="label">Energy</span>
+                <strong id="energy">100</strong>
+                <div class="progress">
+                    <div id="energyBar"></div>
+                </div>
+            </div>
+
+            <div class="stat">
+                <span class="label">Health</span>
+                <strong id="health">100</strong>
+                <div class="progress">
+                    <div id="healthBar"></div>
+                </div>
+            </div>
+
+            <div class="stat">
+                <span class="label">Reputation</span>
+                <strong id="reputation">0</strong>
+            </div>
+
+            <div class="stat">
+                <span class="label">Technical Skill</span>
+                <strong id="tech">0</strong>
+            </div>
+
+            <div class="stat">
+                <span class="label">Business Skill</span>
+                <strong id="business">0</strong>
+            </div>
+
+            <div class="stat">
+                <span class="label">Day</span>
+                <strong id="day">1</strong>
+            </div>
+
+            <div class="stat">
+                <span class="label">Job</span>
+                <strong id="job">Unemployed</strong>
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="panel">
+
+        <h2>📱 Phone</h2>
+
+        <div class="actions">
+
+            <button onclick="work()">💼 Work</button>
+
+            <button onclick="learn()">💻 Learn</button>
+
+            <button onclick="eat()">🍲 Eat</button>
+
+            <button onclick="rest()">😴 Rest</button>
+
+            <button onclick="travel()">🚌 Travel</button>
+
+            <button onclick="businessAction()">🏪 Business</button>
+
+            <button onclick="garage()">🚗 Garage</button>
+
+            <button onclick="house()">🏠 House</button>
+
+        </div>
+
+        <div id="message" class="message"></div>
+
+    </div>
+
+    <div class="panel">
+
+        <h2>🌆 City</h2>
+
+        <button onclick="goMarket()">🛒 Market</button>
+
+        <button onclick="goWorkshop()">🔧 Computer Workshop</button>
+
+        <button onclick="goJobCenter()">💼 Job Center</button>
+
+        <button onclick="goBank()">🏦 Bank</button>
+
+        <button onclick="goHome()">🏠 Go Home</button>
+
+    </div>
+
+    <div class="panel">
+
+        <h2>📊 Life Progress</h2>
+
+        <ul>
+            <li>💰 Money: ₵<span id="lifeMoney">500</span></li>
+            <li>🧠 Technical skill: <span id="lifeTech">0</span></li>
+            <li>🏪 Business skill: <span id="lifeBusiness">0</span></li>
+            <li>⭐ Reputation: <span id="lifeRep">0</span></li>
+            <li>🚗 Vehicle: <span id="vehicle">None</span></li>
+            <li>🏠 Home: <span id="home">Room</span></li>
+        </ul>
+    </div>
+
+    <div class="panel hidden" id="eventPanel">
+
+        <h2>⚡ Life Event</h2>
+
+        <p id="eventText"></p>
+
+        <button onclick="eventChoiceOne()" id="eventOne">
+            Choice 1
+        </button>
+
+        <button onclick="eventChoiceTwo()" id="eventTwo">
+            Choice 2
+        </button>
+
+    </div>
+
+    <div class="panel">
+
+        <h2>🎯 Goals</h2>
+
+        <ul>
+            <li>Earn ₵5,000</li>
+            <li>Reach technical skill level 10</li>
+            <li>Buy your first vehicle</li>
+            <li>Start a business</li>
+            <li>Buy a better home</li>
+            <li>Become respected in your city</li>
+        </ul>
+
+        <button class="red" onclick="restartGame()">
+            🔄 Restart Life
+        </button>
+
+    </div>
+
+</div>
+
+<footer>
+    REAL LIFE © 2026 — Built by Faisal
+</footer>
+
+<script>
+
+let game = {
+
+    money: 500,
+
+    energy: 100,
+
+    health: 100,
+
+    reputation: 0,
+
+    tech: 0,
+
+    business: 0,
+
+    day: 1,
+
+    job: "Unemployed",
+
+    vehicle: "None",
+
+    home: "Room",
+
+    location: "Accra",
+
+    hasBusiness: false,
+
+    businessMoney: 0,
+
+    eventActive: false
+
+};
+
+
+/* -------------------------
+   BASIC DISPLAY
+------------------------- */
+
+function updateDisplay() {
+
+    document.getElementById("money").textContent =
+        Math.floor(game.money);
+
+    document.getElementById("lifeMoney").textContent =
+        Math.floor(game.money);
+
+    document.getElementById("energy").textContent =
+        game.energy;
+
+    document.getElementById("health").textContent =
+        game.health;
+
+    document.getElementById("reputation").textContent =
+        game.reputation;
+
+    document.getElementById("tech").textContent =
+        game.tech;
+
+    document.getElementById("business").textContent =
+        game.business;
+
+    document.getElementById("lifeTech").textContent =
+        game.tech;
+
+    document.getElementById("lifeBusiness").textContent =
+        game.business;
+
+    document.getElementById("lifeRep").textContent =
+        game.reputation;
+
+    document.getElementById("day").textContent =
+        game.day;
+
+    document.getElementById("job").textContent =
+        game.job;
+
+    document.getElementById("vehicle").textContent =
+        game.vehicle;
+
+    document.getElementById("home").textContent =
+        game.home;
+
+    document.getElementById("location").textContent =
+        game.location;
+
+    document.getElementById("energyBar").style.width =
+        game.energy + "%";
+
+    document.getElementById("healthBar").style.width =
+        game.health + "%";
+}
+
+
+/* -------------------------
+   MESSAGE
+------------------------- */
+
+function message(text) {
+
+    document.getElementById("message").textContent =
+        text;
+
+}
+
+
+/* -------------------------
+   DAY
+------------------------- */
+
+function newDay() {
+
+    game.day++;
+
+    game.energy += 20;
+
+    if (game.energy > 100)
+        game.energy = 100;
+
+    randomEvent();
+
+    updateDisplay();
+}
+
+
+/* -------------------------
+   WORK
+------------------------- */
+
+function work() {
+
+    if (game.energy < 20) {
+
+        message("You are too tired to work. Get some rest.");
+
+        return;
+    }
+
+    let income = 0;
+
+    if (game.job === "Computer Technician") {
+
+        income = 120;
+
+        game.tech++;
+
+    }
+
+    else if (game.job === "Shop Worker") {
+
+        income = 80;
+
+    }
+
+    else if (game.job === "Driver") {
+
+        income = 100;
+
+    }
+
+    else {
+
+        income = 50;
+
+    }
+
+    game.money += income;
+
+    game.energy -= 20;
+
+    game.reputation++;
+
+    message(
+        "You worked today and earned ₵" +
+        income +
+        "."
+    );
+
+    newDay();
+
+    updateDisplay();
+}
+
+
+/* -------------------------
+   LEARNING
+------------------------- */
+
+function learn() {
+
+    if (game.energy < 15) {
+
+        message("You need more energy to study.");
+
+        return;
+    }
+
+    game.tech++;
+
+    game.energy -= 15;
+
+    message(
+        "You studied technology. Technical skill increased."
+    );
+
+    updateDisplay();
+}
+
+
+/* -------------------------
+   FOOD
+------------------------- */
+
+function eat() {
+
+    if (game.money < 25) {
+
+        message("You don't have enough money for food.");
+
+        return;
+    }
+
+    game.money -= 25;
+
+    game.health += 10;
+
+    game.energy += 15;
+
+    if (game.health > 100)
+        game.health = 100;
+
+    if (game.energy > 100)
+        game.energy = 100;
+
+    message("You bought food and recovered some energy.");
+
+    updateDisplay();
+}
+
+
+/* -------------------------
+   REST
+------------------------- */
+
+function rest() {
+
+    game.energy = 100;
+
+    game.health += 5;
+
+    if (game.health > 100)
+        game.health = 100;
+
+    message("You rested and recovered.");
+
+    newDay();
+}
+
+
+/* -------------------------
+   TRAVEL
+------------------------- */
+
+function travel() {
+
+    if (game.money < 10) {
+
+        message("You need ₵10 for transport.");
+
+        return;
+    }
+
+    game.money -= 10;
+
+    const places = [
+        "Accra",
+        "Madina",
+        "Osu",
+        "Adabraka",
+        "Kaneshie",
+        "Circle"
+    ];
+
+    game.location =
+        places[Math.floor(Math.random() * places.length)];
+
+    game.energy -= 5;
+
+    if (game.energy < 0)
+        game.energy = 0;
+
+    message(
+        "You travelled to " +
+        game.location +
+        "."
+    );
+
+    updateDisplay();
+}
+
+
+/* -------------------------
+   MARKET
+------------------------- */
+
+function goMarket() {
+
+    game.location = "Market";
+
+    message(
+        "You are at the market. Food costs ₵25."
+    );
+
+    updateDisplay();
+}
+
+
+/* -------------------------
+   WORKSHOP
+------------------------- */
+
+function goWorkshop() {
+
+    game.location = "Computer Workshop";
+
+    if (game.money >= 50) {
+
+        game.money -= 50;
+
+        game.tech += 2;
+
+        game.reputation++;
+
+        message(
+            "You repaired a computer and earned valuable experience."
+        );
+
+    } else {
+
+        message(
+            "The workshop needs ₵50 for training/tools."
+        );
+
+    }
+
+    updateDisplay();
+}
+
+
+/* -------------------------
+   JOB CENTER
+------------------------- */
+
+function goJobCenter() {
+
+    game.location = "Job Center";
+
+    document.getElementById("story").textContent =
+        "Choose a career path. Your skills affect your future income.";
+
+    document.getElementById("message").textContent = "";
+
+    let choice = confirm(
+        "Become a Computer Technician?\n\nOK = Computer Technician\nCancel = Shop Worker"
+    );
+
+    if (choice) {
+
+        game.job = "Computer Technician";
+
+        game.tech += 2;
+
+        message(
+            "You got a Computer Technician job."
+        );
+
+    } else {
+
+        game.job = "Shop Worker";
+
+        message(
+            "You got a Shop Worker job."
+        );
+
+    }
+
+    updateDisplay();
+}
+
+
+/* -------------------------
+   BANK
+------------------------- */
+
+function goBank() {
+
+    game.location = "Bank";
+
+    if (game.money >= 1000) {
+
+        message(
+            "The bank recognizes you as someone building financial stability."
+        );
+
+        game.reputation++;
+
+    } else {
+
+        message(
+            "The bank says: keep saving and building your income."
+        );
+
+    }
+
+    updateDisplay();
+}
+
+
+/* -------------------------
+   HOME
+------------------------- */
+
+function goHome() {
+
+    game.location = "Home";
+
+    message(
+        "You returned home."
+    );
+
+    updateDisplay();
+}
+
+
+/* -------------------------
+   BUSINESS
+------------------------- */
+
+function businessAction() {
+
+    if (!game.hasBusiness) {
+
+        if (game.money < 1000) {
+
+            message(
+                "You need ₵1,000 to start your first small business."
+            );
+
+            return;
+        }
+
+        game.money -= 1000;
+
+        game.hasBusiness = true;
+
+        game.business = 1;
+
+        message(
+            "Congratulations! You started your first business."
+        );
+
+    } else {
+
+        let profit =
+            50 +
+            game.business * 20;
+
+        game.money += profit;
+
+        game.business++;
+
+        game.businessMoney += profit;
+
+        message(
+            "Your business made ₵" +
+            profit +
+            " profit today."
+        );
+
+    }
+
+    updateDisplay();
+}
+
+
+/* -------------------------
+   GARAGE
+------------------------- */
+
+function garage() {
+
+    if (game.vehicle === "None") {
+
+        if (game.money >= 5000) {
+
+            game.money -= 5000;
+
+            game.vehicle = "Used Car";
+
+            message(
+                "You bought your first car!"
+            );
+
+        } else {
+
+            message(
+                "A used car costs ₵5,000."
+            );
+
+        }
+
+    } else {
+
+        message(
+            "Your vehicle: " +
+            game.vehicle
+        );
+
+    }
+
+    updateDisplay();
+}
+
+
+/* -------------------------
+   HOUSE
+------------------------- */
+
+function house() {
+
+    if (game.home === "Room") {
+
+        if (game.money >= 3000) {
+
+            game.money -= 3000;
+
+            game.home = "Small House";
+
+            game.reputation += 2;
+
+            message(
+                "You moved into your own small house."
+            );
+
+        } else {
+
+            message(
+                "You need ₵3,000 to upgrade your home."
+            );
+
+        }
+
+    }
+
+    else if (game.home === "Small House") {
+
+        if (game.money >= 10000) {
+
+            game.money -= 10000;
+
+            game.home = "Modern House";
+
+            game.reputation += 5;
+
+            message(
+                "You upgraded to a modern house."
+            );
+
+        } else {
+
+            message(
+                "A modern house requires ₵10,000."
+            );
+
+        }
+
+    }
+
+    else {
+
+        message(
+            "Your home is already upgraded."
+        );
+
+    }
+
+    updateDisplay();
+}
+
+
+/* -------------------------
+   RANDOM LIFE EVENTS
+------------------------- */
+
+function randomEvent() {
+
+    if (Math.random() > 0.35)
+        return;
+
+    let events = [
+
+        {
+            text:
+            "Someone offers you a small computer repair job.",
+            one:
+            "Take the job",
+            two:
+            "Decline",
+            actionOne:
+            function() {
+
+                game.money += 100;
+                game.tech += 1;
+
+                message(
+                    "You repaired the computer and earned ₵100."
+                );
+
+            },
+            actionTwo:
+            function() {
+
+                message(
+                    "You declined the job."
+                );
+
+            }
+        },
+
+        {
+            text:
+            "Your friend needs help moving equipment.",
+            one:
+            "Help",
+            two:
+            "Stay home",
+            actionOne:
+            function() {
+
+                game.reputation += 2;
+
+                game.energy -= 10;
+
+                message(
+                    "You helped your friend. Your reputation increased."
+                );
+
+            },
+            actionTwo:
+            function() {
+
+                message(
+                    "You stayed home."
+                );
+
+            }
+        },
+
+        {
+            text:
+            "A customer asks if you can repair a phone.",
+            one:
+            "Try it",
+            two:
+            "Say no",
+            actionOne:
+            function() {
+
+                game.tech += 2;
+
+                game.money += 80;
+
+                message(
+                    "You successfully handled the repair."
+                );
+
+            },
+            actionTwo:
+            function() {
+
+                message(
+                    "You decided not to take the risk."
+                );
+
+            }
+        }
+
+    ];
+
+    let event =
+        events[
+            Math.floor(Math.random() * events.length)
+        ];
+
+    window.currentEvent = event;
+
+    document.getElementById("eventText").textContent =
+        event.text;
+
+    document.getElementById("eventOne").textContent =
+        event.one;
+
+    document.getElementById("eventTwo").textContent =
+        event.two;
+
+    document.getElementById("eventPanel")
+        .classList.remove("hidden");
+
+    game.eventActive = true;
+}
+
+
+/* -------------------------
+   EVENT CHOICES
+------------------------- */
+
+function eventChoiceOne() {
+
+    if (!window.currentEvent)
+        return;
+
+    window.currentEvent.actionOne();
+
+    closeEvent();
+
+    updateDisplay();
+}
+
+
+function eventChoiceTwo() {
+
+    if (!window.currentEvent)
+        return;
+
+    window.currentEvent.actionTwo();
+
+    closeEvent();
+
+    updateDisplay();
+}
+
+
+function closeEvent() {
+
+    document.getElementById("eventPanel")
+        .classList.add("hidden");
+
+    game.eventActive = false;
+
+}
+
+
+/* -------------------------
+   RESTART
+------------------------- */
+
+function restartGame() {
+
+    game = {
+
+        money: 500,
+
+        energy: 100,
+
+        health: 100,
+
+        reputation: 0,
+
+        tech: 0,
+
+        business: 0,
+
+        day: 1,
+
+        job: "Unemployed",
+
+        vehicle: "None",
+
+        home: "Room",
+
+        location: "Accra",
+
+        hasBusiness: false,
+
+        businessMoney: 0,
+
+        eventActive: false
+
+    };
+
+    document.getElementById("story").textContent =
+        "Welcome to your new life. You have very little money, no car and no house. Your future depends on the decisions you make.";
+
+    message(
+        "Your life has restarted."
+    );
+
+    updateDisplay();
+}
+
+
+/* -------------------------
+   START GAME
+------------------------- */
+
+updateDisplay();
+
+</script>
+
+</body>
+</html>

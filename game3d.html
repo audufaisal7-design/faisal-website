@@ -1,0 +1,1696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Faisal City 3D</title>
+
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#111;font-family:Arial}
+#game{position:fixed;inset:0;width:100%;height:100%}
+
+#hud{
+position:fixed;top:10px;left:10px;z-index:20;color:white;
+text-shadow:0 2px 4px #000;pointer-events:none
+}
+#title{font-size:20px;font-weight:bold}
+#stats{font-size:13px;line-height:1.45;margin-top:5px}
+.bar{width:145px;height:7px;background:#222b;border-radius:5px;margin:3px 0}
+.fill{height:100%;width:100%;border-radius:5px}
+#healthFill{background:#e53935}
+#energyFill{background:#2196f3}
+
+#mission{
+position:fixed;right:10px;top:10px;z-index:20;
+background:#0009;color:white;padding:10px;border-radius:8px;
+width:210px;font-size:12px
+}
+
+#message{
+position:fixed;top:16px;left:50%;transform:translateX(-50%);
+z-index:50;background:#000c;color:white;padding:9px 15px;
+border-radius:8px;display:none;font-size:13px
+}
+
+#dealer{
+position:fixed;inset:0;background:#000b;z-index:60;
+display:none;align-items:center;justify-content:center;
+color:white
+}
+#dealerBox{
+background:#1b1d20;border:1px solid #555;border-radius:14px;
+width:min(92%,430px);max-height:85%;overflow:auto;padding:18px
+}
+.vehicleCard{
+background:#292c30;margin:8px 0;padding:12px;border-radius:10px
+}
+.vehicleCard button{
+background:#eee;border:0;border-radius:7px;padding:8px 12px;
+font-weight:bold
+}
+.close{
+background:#b71c1c!important;color:white
+}
+
+#controls{
+position:fixed;inset:0;z-index:30;pointer-events:none
+}
+#pad{
+position:absolute;left:18px;bottom:20px;width:150px;height:150px;
+pointer-events:auto
+}
+.p{
+position:absolute;width:48px;height:48px;border-radius:12px;
+background:#0008;border:1px solid #ffffff44;color:white;
+display:flex;align-items:center;justify-content:center;
+font-size:20px;user-select:none
+}
+#up{left:51px;top:0}
+#down{left:51px;bottom:0}
+#left{left:0;top:51px}
+#right{right:0;top:51px}
+
+#buttons{
+position:absolute;right:15px;bottom:20px;width:180px;
+display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end;
+pointer-events:auto
+}
+.btn{
+width:80px;height:48px;border:0;border-radius:12px;
+background:#0009;color:white;font-weight:bold;
+border:1px solid #ffffff44
+}
+.btn:active,.p:active{background:#777}
+
+#loading{
+position:fixed;inset:0;background:#111;color:white;z-index:100;
+display:flex;align-items:center;justify-content:center;
+text-align:center
+}
+
+@media(max-width:500px){
+#title{font-size:17px}
+#stats{font-size:11px}
+#mission{width:165px;font-size:10px}
+.bar{width:115px}
+}
+</style>
+</head>
+
+<body>
+
+<div id="loading">
+<div>
+<b>FAISAL CITY 3D</b><br><br>
+Building the city...
+</div>
+</div>
+
+<canvas id="game"></canvas>
+
+<div id="hud">
+<div id="title">FAISAL CITY</div>
+<div id="stats">
+Health
+<div class="bar"><div id="healthFill" class="fill"></div></div>
+Energy
+<div class="bar"><div id="energyFill" class="fill"></div></div>
+💰 ₵<span id="cash">500</span><br>
+🚗 <span id="vehicle">On Foot</span><br>
+⭐ Wanted: <span id="wanted">0</span><br>
+🕐 <span id="time">09:00</span>
+</div>
+</div>
+
+<div id="mission">
+<b>MISSION</b>
+<div id="missionText">Go to the dealership.</div>
+</div>
+
+<div id="message"></div>
+
+<div id="dealer">
+<div id="dealerBox">
+<h2>🚘 VEHICLE DEALERSHIP</h2>
+<div id="dealerList"></div>
+<br>
+<button class="vehicleCard close" id="closeDealer">CLOSE</button>
+</div>
+</div>
+
+<div id="controls">
+<div id="pad">
+<div class="p" id="up">▲</div>
+<div class="p" id="down">▼</div>
+<div class="p" id="left">◀</div>
+<div class="p" id="right">▶</div>
+</div>
+
+<div id="buttons">
+<button class="btn" id="run">RUN</button>
+<button class="btn" id="enter">ENTER</button>
+<button class="btn" id="action">ACTION</button>
+<button class="btn" id="dealerBtn">DEALER</button>
+</div>
+</div>
+
+<script type="module">
+
+import * as THREE from
+"https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js";
+
+
+// ======================================================
+// ENGINE
+// ======================================================
+
+const canvas=document.getElementById("game");
+
+const scene=new THREE.Scene();
+
+scene.background=new THREE.Color(0x82afd0);
+
+scene.fog=new THREE.Fog(
+0x82afd0,
+80,
+450
+);
+
+const camera=new THREE.PerspectiveCamera(
+65,
+innerWidth/innerHeight,
+0.1,
+1200
+);
+
+const renderer=new THREE.WebGLRenderer({
+canvas,
+antialias:true,
+powerPreference:"high-performance"
+});
+
+renderer.setSize(innerWidth,innerHeight);
+renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));
+renderer.shadowMap.enabled=true;
+renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+
+const clock=new THREE.Clock();
+
+
+// ======================================================
+// LIGHT
+// ======================================================
+
+const skyLight=new THREE.HemisphereLight(
+0xb9d8ff,
+0x30452d,
+1.7
+);
+
+scene.add(skyLight);
+
+const sun=new THREE.DirectionalLight(
+0xffffff,
+2.2
+);
+
+sun.position.set(100,140,80);
+sun.castShadow=true;
+sun.shadow.mapSize.width=1024;
+sun.shadow.mapSize.height=1024;
+sun.shadow.camera.left=-220;
+sun.shadow.camera.right=220;
+sun.shadow.camera.top=220;
+sun.shadow.camera.bottom=-220;
+
+scene.add(sun);
+
+
+// ======================================================
+// GROUND
+// ======================================================
+
+const WORLD=600;
+
+const ground=new THREE.Mesh(
+new THREE.PlaneGeometry(WORLD,WORLD),
+new THREE.MeshStandardMaterial({
+color:0x52784a,
+roughness:1
+})
+);
+
+ground.rotation.x=-Math.PI/2;
+ground.receiveShadow=true;
+
+scene.add(ground);
+
+
+// ======================================================
+// ROADS
+// ======================================================
+
+const roads=[
+[0,0,34,WORLD,0],
+[0,0,WORLD,34,0],
+[-130,0,22,WORLD,0],
+[130,0,22,WORLD,0],
+[0,-130,WORLD,22,0],
+[0,130,WORLD,22,0]
+];
+
+for(const r of roads){
+
+const road=new THREE.Mesh(
+new THREE.PlaneGeometry(r[2],r[3]),
+new THREE.MeshStandardMaterial({
+color:0x282b2e,
+roughness:.95
+})
+);
+
+road.rotation.x=-Math.PI/2;
+road.position.set(r[0],.03,r[1]);
+road.receiveShadow=true;
+
+scene.add(road);
+}
+
+
+// road lines
+
+function line(x,z,w,h){
+
+const m=new THREE.Mesh(
+new THREE.PlaneGeometry(w,h),
+new THREE.MeshBasicMaterial({
+color:0xd8c94e
+})
+);
+
+m.rotation.x=-Math.PI/2;
+m.position.set(x,.05,z);
+scene.add(m);
+}
+
+for(let p=-280;p<=280;p+=16){
+
+line(0,p,1,7);
+line(p,0,7,1);
+}
+
+
+// ======================================================
+// BUILDINGS
+// ======================================================
+
+const buildings=[];
+
+const buildingColors=[
+0x92999e,
+0xb29d84,
+0x69747b,
+0xc0ad92,
+0x7d8387,
+0x9d8d83
+];
+
+function building(x,z,w,h,d){
+
+const b=new THREE.Mesh(
+new THREE.BoxGeometry(w,h,d),
+new THREE.MeshStandardMaterial({
+color:buildingColors[
+Math.floor(Math.random()*buildingColors.length)
+],
+roughness:.85
+})
+);
+
+b.position.set(x,h/2,z);
+b.castShadow=true;
+b.receiveShadow=true;
+
+scene.add(b);
+buildings.push(b);
+
+
+// windows
+
+for(let y=4;y<h-2;y+=5){
+
+for(let xx=-w/2+3;xx<w/2-2;xx+=5){
+
+const win=new THREE.Mesh(
+new THREE.BoxGeometry(1.6,1.7,.08),
+new THREE.MeshBasicMaterial({
+color:0x8ec9df
+})
+);
+
+win.position.set(
+x+xx,
+y,
+z-d/2-.05
+);
+
+scene.add(win);
+}
+}
+}
+
+
+// create city blocks
+
+for(let x=-260;x<=260;x+=60){
+
+for(let z=-260;z<=260;z+=60){
+
+if(
+Math.abs(x)<45 ||
+Math.abs(z)<45
+)continue;
+
+const w=28+Math.random()*20;
+const d=28+Math.random()*20;
+const h=12+Math.random()*48;
+
+building(
+x+Math.random()*10-5,
+z+Math.random()*10-5,
+w,h,d
+);
+}
+}
+
+
+// ======================================================
+// TREES
+// ======================================================
+
+function tree(x,z){
+
+const trunk=new THREE.Mesh(
+new THREE.CylinderGeometry(.6,.8,4.5,8),
+new THREE.MeshStandardMaterial({
+color:0x65442c
+})
+);
+
+trunk.position.set(x,2.25,z);
+trunk.castShadow=true;
+scene.add(trunk);
+
+const crown=new THREE.Mesh(
+new THREE.SphereGeometry(3.4,10,8),
+new THREE.MeshStandardMaterial({
+color:0x285b32
+})
+);
+
+crown.position.set(x,6.5,z);
+crown.castShadow=true;
+scene.add(crown);
+}
+
+for(let i=0;i<90;i++){
+
+const x=Math.random()*540-270;
+const z=Math.random()*540-270;
+
+if(Math.abs(x)<28 || Math.abs(z)<28)continue;
+
+tree(x,z);
+}
+
+
+// ======================================================
+// STREET LIGHTS
+// ======================================================
+
+const lamps=[];
+
+function streetLight(x,z){
+
+const pole=new THREE.Mesh(
+new THREE.CylinderGeometry(.14,.2,7,8),
+new THREE.MeshStandardMaterial({
+color:0x34373a
+})
+);
+
+pole.position.set(x,3.5,z);
+pole.castShadow=true;
+scene.add(pole);
+
+const bulb=new THREE.Mesh(
+new THREE.SphereGeometry(.4,8,8),
+new THREE.MeshBasicMaterial({
+color:0xffe4a0
+})
+);
+
+bulb.position.set(x,7,z);
+scene.add(bulb);
+
+const light=new THREE.PointLight(
+0xffd98a,
+0,
+35
+);
+
+light.position.set(x,6.8,z);
+scene.add(light);
+
+lamps.push(light);
+}
+
+for(let p=-260;p<=260;p+=40){
+
+streetLight(19,p);
+streetLight(-19,p);
+streetLight(p,19);
+streetLight(p,-19);
+}
+
+
+// ======================================================
+// PLAYER
+// ======================================================
+
+const player={
+x:0,
+z:20,
+rotation:0,
+health:100,
+energy:100,
+cash:500,
+wanted:0,
+vehicle:null,
+running:false
+};
+
+const playerGroup=new THREE.Group();
+
+const body=new THREE.Mesh(
+new THREE.CapsuleGeometry(.65,1.5,5,10),
+new THREE.MeshStandardMaterial({
+color:0xeeeeee
+})
+);
+
+body.position.y=1.5;
+body.castShadow=true;
+playerGroup.add(body);
+
+const head=new THREE.Mesh(
+new THREE.SphereGeometry(.55,12,12),
+new THREE.MeshStandardMaterial({
+color:0x956a4c
+})
+);
+
+head.position.y=3;
+head.castShadow=true;
+playerGroup.add(head);
+
+playerGroup.position.set(
+player.x,
+0,
+player.z
+);
+
+scene.add(playerGroup);
+
+
+// ======================================================
+// VEHICLE CREATION
+// ======================================================
+
+const cars=[];
+const traffic=[];
+
+function makeCar(x,z,color,rotation=0,trafficCar=false){
+
+const car=new THREE.Group();
+
+const base=new THREE.Mesh(
+new THREE.BoxGeometry(5,1.2,8),
+new THREE.MeshStandardMaterial({
+color,
+metalness:.4,
+roughness:.4
+})
+);
+
+base.position.y=1.2;
+base.castShadow=true;
+car.add(base);
+
+const cabin=new THREE.Mesh(
+new THREE.BoxGeometry(3.5,1.3,3.8),
+new THREE.MeshStandardMaterial({
+color:0x20282d,
+metalness:.2,
+roughness:.25
+})
+);
+
+cabin.position.set(0,2.05,-.3);
+cabin.castShadow=true;
+car.add(cabin);
+
+const wheelMat=new THREE.MeshStandardMaterial({
+color:0x111111
+});
+
+for(const p of [
+[-2.2,.85,2.5],
+[2.2,.85,2.5],
+[-2.2,.85,-2.5],
+[2.2,.85,-2.5]
+]){
+
+const wheel=new THREE.Mesh(
+new THREE.CylinderGeometry(.82,.82,.5,16),
+wheelMat
+);
+
+wheel.rotation.z=Math.PI/2;
+wheel.position.set(p[0],p[1],p[2]);
+wheel.castShadow=true;
+car.add(wheel);
+}
+
+car.position.set(x,0,z);
+car.rotation.y=rotation;
+
+scene.add(car);
+
+const data={
+mesh:car,
+speed:trafficCar?3+Math.random()*3:0,
+traffic:trafficCar,
+rotation,
+occupied:false,
+type:"car"
+};
+
+if(trafficCar)traffic.push(data);
+else cars.push(data);
+
+return data;
+}
+
+
+// parked vehicles
+
+makeCar(48,0,0xc62828,Math.PI/2);
+makeCar(-48,0,0xf0f0f0,-Math.PI/2);
+makeCar(0,55,0x111111,0);
+makeCar(0,-55,0x1565c0,Math.PI);
+
+
+// traffic vehicles
+
+for(let i=0;i<12;i++){
+
+const horizontal=i%2===0;
+
+if(horizontal){
+
+makeCar(
+-280+Math.random()*560,
+i%4<2?16:-16,
+[
+0xd32f2f,
+0xffffff,
+0x222222,
+0x1565c0
+][i%4],
+i%4<2?Math.PI/2:-Math.PI/2,
+true
+);
+
+}else{
+
+makeCar(
+i%4<2?16:-16,
+-280+Math.random()*560,
+[
+0xeeeeee,
+0xe67e22,
+0x333333,
+0x2196f3
+][i%4],
+i%4<2?0:Math.PI,
+true
+);
+}
+}
+
+
+// ======================================================
+// HELICOPTER
+// ======================================================
+
+const helicopter=new THREE.Group();
+
+const heliBody=new THREE.Mesh(
+new THREE.BoxGeometry(5,2.2,8),
+new THREE.MeshStandardMaterial({
+color:0x30343a,
+metalness:.35,
+roughness:.35
+})
+);
+
+heliBody.position.y=2;
+heliBody.castShadow=true;
+helicopter.add(heliBody);
+
+const heliGlass=new THREE.Mesh(
+new THREE.BoxGeometry(4,1.4,3),
+new THREE.MeshStandardMaterial({
+color:0x6c9eb2,
+metalness:.2,
+roughness:.2
+})
+);
+
+heliGlass.position.set(0,2.8,-2);
+heliGlass.castShadow=true;
+helicopter.add(heliGlass);
+
+const rotor=new THREE.Mesh(
+new THREE.BoxGeometry(14,.15,.5),
+new THREE.MeshStandardMaterial({
+color:0x151515
+})
+);
+
+rotor.position.y=4;
+helicopter.add(rotor);
+
+helicopter.position.set(230,0,230);
+scene.add(helicopter);
+
+
+// ======================================================
+// NPCs
+// ======================================================
+
+const npcs=[];
+
+function npc(x,z){
+
+const g=new THREE.Group();
+
+const b=new THREE.Mesh(
+new THREE.CapsuleGeometry(.55,1.4,4,8),
+new THREE.MeshStandardMaterial({
+color:
+Math.random()>.5
+?0x315a92
+:0x8d443f
+})
+);
+
+b.position.y=1.4;
+b.castShadow=true;
+g.add(b);
+
+const h=new THREE.Mesh(
+new THREE.SphereGeometry(.5,10,10),
+new THREE.MeshStandardMaterial({
+color:0x96694b
+})
+);
+
+h.position.y=2.9;
+h.castShadow=true;
+g.add(h);
+
+g.position.set(x,0,z);
+
+scene.add(g);
+
+npcs.push({
+mesh:g,
+direction:Math.random()*Math.PI*2,
+speed:.5+Math.random()*.6,
+timer:Math.random()*5
+});
+}
+
+for(let i=0;i<35;i++){
+
+npc(
+Math.random()*500-250,
+Math.random()*500-250
+);
+}
+
+
+// ======================================================
+// DEALERSHIP
+// ======================================================
+
+const dealerPosition={
+x:100,
+z:100
+};
+
+const dealerBuilding=new THREE.Mesh(
+new THREE.BoxGeometry(28,12,22),
+new THREE.MeshStandardMaterial({
+color:0x3c4146
+})
+);
+
+dealerBuilding.position.set(
+dealerPosition.x,
+6,
+dealerPosition.z
+);
+
+dealerBuilding.castShadow=true;
+dealerBuilding.receiveShadow=true;
+scene.add(dealerBuilding);
+
+const dealerSign=new THREE.Mesh(
+new THREE.BoxGeometry(22,3,.5),
+new THREE.MeshBasicMaterial({
+color:0xd6b23c
+})
+);
+
+dealerSign.position.set(
+100,
+13,
+88.8
+);
+
+scene.add(dealerSign);
+
+
+// ======================================================
+// VEHICLE DATA
+// ======================================================
+
+const vehicleTypes=[
+{
+id:"city",
+name:"City Car",
+price:5000,
+speed:8,
+color:0xd32f2f
+},
+{
+id:"sport",
+name:"Sport Car",
+price:45000,
+speed:11,
+color:0xffffff
+},
+{
+id:"luxury",
+name:"Luxury Car",
+price:120000,
+speed:9,
+color:0x202020
+},
+{
+id:"super",
+name:"Supercar",
+price:250000,
+speed:14,
+color:0xffb300
+},
+{
+id:"hyper",
+name:"Hypercar",
+price:500000,
+speed:17,
+color:0x6a35d9
+},
+{
+id:"helicopter",
+name:"Helicopter",
+price:750000,
+speed:20,
+color:0x34383d
+}
+];
+
+const owned=[];
+
+
+// ======================================================
+// DEALER UI
+// ======================================================
+
+function openDealer(){
+
+const list=document.getElementById("dealerList");
+
+list.innerHTML="";
+
+for(const v of vehicleTypes){
+
+const div=document.createElement("div");
+
+div.className="vehicleCard";
+
+const has=owned.includes(v.id);
+
+div.innerHTML=`
+<b>${v.name}</b><br>
+Price: ₵${v.price.toLocaleString()}<br>
+Speed: ${v.speed}
+<br><br>
+<button data-id="${v.id}">
+${has?"OWNED":"BUY"}
+</button>
+`;
+
+list.appendChild(div);
+}
+
+list.querySelectorAll("button").forEach(btn=>{
+
+btn.onclick=()=>buyVehicle(
+btn.dataset.id
+);
+
+});
+
+document.getElementById("dealer").style.display="flex";
+}
+
+function closeDealer(){
+
+document.getElementById("dealer").style.display="none";
+}
+
+document.getElementById(
+"dealerBtn"
+).onclick=openDealer;
+
+document.getElementById(
+"closeDealer"
+).onclick=closeDealer;
+
+
+function buyVehicle(id){
+
+const v=vehicleTypes.find(
+x=>x.id===id
+);
+
+if(!v)return;
+
+if(owned.includes(id)){
+
+show("You already own this vehicle.");
+
+return;
+}
+
+if(player.cash<v.price){
+
+show("Not enough money.");
+
+return;
+}
+
+player.cash-=v.price;
+owned.push(id);
+
+if(id==="helicopter"){
+
+show("Helicopter purchased! Find it at the airport.");
+
+}else{
+
+show(v.name+" purchased!");
+}
+
+openDealer();
+}
+
+
+// ======================================================
+// ENTER VEHICLE
+// ======================================================
+
+function enterVehicle(){
+
+if(player.vehicle){
+
+const v=player.vehicle;
+
+v.occupied=false;
+
+player.x=
+v.mesh.position.x+6;
+
+player.z=
+v.mesh.position.z;
+
+player.vehicle=null;
+
+playerGroup.visible=true;
+
+show("You left the vehicle.");
+
+return;
+}
+
+
+// helicopter
+
+if(
+distance(
+player.x,
+player.z,
+helicopter.position.x,
+helicopter.position.z
+)<10
+){
+
+if(!owned.includes("helicopter")){
+
+show("You need to buy the helicopter first.");
+return;
+}
+
+player.vehicle={
+mesh:helicopter,
+speed:20,
+occupied:true,
+type:"helicopter"
+};
+
+playerGroup.visible=false;
+
+show("Helicopter ready.");
+
+return;
+}
+
+
+// cars
+
+let nearest=null;
+let best=9;
+
+for(const c of cars){
+
+const d=distance(
+player.x,
+player.z,
+c.mesh.position.x,
+c.mesh.position.z
+);
+
+if(d<best){
+
+best=d;
+nearest=c;
+}
+}
+
+if(nearest){
+
+nearest.occupied=true;
+
+player.vehicle=nearest;
+
+playerGroup.visible=false;
+
+show("Vehicle entered.");
+
+}else{
+
+show("Move closer to a vehicle.");
+}
+}
+
+document.getElementById(
+"enter"
+).onclick=enterVehicle;
+
+
+// ======================================================
+// DISTANCE
+// ======================================================
+
+function distance(x1,z1,x2,z2){
+
+return Math.hypot(
+x1-x2,
+z1-z2
+);
+}
+
+
+// ======================================================
+// TRAFFIC
+// ======================================================
+
+function updateTraffic(delta){
+
+for(const car of traffic){
+
+const r=car.mesh.rotation.y;
+
+car.mesh.position.x+=
+Math.sin(r)*car.speed*delta;
+
+car.mesh.position.z+=
+Math.cos(r)*car.speed*delta;
+
+if(car.mesh.position.x>285)
+car.mesh.position.x=-285;
+
+if(car.mesh.position.x<-285)
+car.mesh.position.x=285;
+
+if(car.mesh.position.z>285)
+car.mesh.position.z=-285;
+
+if(car.mesh.position.z<-285)
+car.mesh.position.z=285;
+}
+}
+
+
+// ======================================================
+// NPC MOVEMENT
+// ======================================================
+
+function updateNPCs(delta){
+
+for(const n of npcs){
+
+n.timer-=delta;
+
+if(n.timer<=0){
+
+n.direction=
+Math.random()*Math.PI*2;
+
+n.timer=
+2+Math.random()*5;
+}
+
+n.mesh.position.x+=
+Math.sin(n.direction)
+*n.speed
+*delta;
+
+n.mesh.position.z+=
+Math.cos(n.direction)
+*n.speed
+*delta;
+
+if(
+Math.abs(n.mesh.position.x)>270 ||
+Math.abs(n.mesh.position.z)>270
+){
+
+n.direction+=Math.PI;
+}
+}
+}
+
+
+// ======================================================
+// PLAYER MOVEMENT
+// ======================================================
+
+const input={
+up:false,
+down:false,
+left:false,
+right:false,
+run:false
+};
+
+function movePlayer(delta){
+
+let dx=0;
+let dz=0;
+
+if(input.up)dz-=1;
+if(input.down)dz+=1;
+if(input.left)dx-=1;
+if(input.right)dx+=1;
+
+if(dx===0&&dz===0)return;
+
+const len=Math.hypot(dx,dz);
+
+dx/=len;
+dz/=len;
+
+
+// vehicle
+
+if(player.vehicle){
+
+const v=player.vehicle;
+
+v.mesh.position.x+=
+dx*v.speed*delta;
+
+v.mesh.position.z+=
+dz*v.speed*delta;
+
+v.mesh.rotation.y=
+Math.atan2(dx,dz);
+
+player.x=
+v.mesh.position.x;
+
+player.z=
+v.mesh.position.z;
+
+return;
+}
+
+
+// walking
+
+let speed=5;
+
+if(input.run && player.energy>0){
+
+speed=8;
+
+player.energy-=18*delta;
+
+}else{
+
+player.energy=
+Math.min(
+100,
+player.energy+5*delta
+);
+}
+
+player.x+=dx*speed*delta;
+player.z+=dz*speed*delta;
+
+player.x=THREE.MathUtils.clamp(
+player.x,-285,285
+);
+
+player.z=THREE.MathUtils.clamp(
+player.z,-285,285
+);
+
+player.rotation=
+Math.atan2(dx,dz);
+
+playerGroup.rotation.y=
+player.rotation;
+
+playerGroup.position.set(
+player.x,
+0,
+player.z
+);
+}
+
+
+// ======================================================
+// CAMERA
+// ======================================================
+
+function updateCamera(){
+
+let distanceBack=
+player.vehicle
+?18
+:14;
+
+const tx=player.x;
+const tz=player.z;
+
+const desiredX=
+tx-
+Math.sin(player.rotation)
+*distanceBack;
+
+const desiredZ=
+tz-
+Math.cos(player.rotation)
+*distanceBack;
+
+const height=
+player.vehicle &&
+player.vehicle.type==="helicopter"
+?13
+:8;
+
+camera.position.x+=
+(desiredX-camera.position.x)*.09;
+
+camera.position.z+=
+(desiredZ-camera.position.z)*.09;
+
+camera.position.y+=
+(height-camera.position.y)*.09;
+
+camera.lookAt(
+tx,
+player.vehicle &&
+player.vehicle.type==="helicopter"
+?3
+:2,
+tz
+);
+}
+
+
+// ======================================================
+// DAY/NIGHT
+// ======================================================
+
+let worldTime=9;
+
+function updateTime(delta){
+
+worldTime+=delta*.45;
+
+if(worldTime>=24)
+worldTime=0;
+
+const daylight=
+Math.max(
+0,
+Math.sin(
+(worldTime-6)/24*Math.PI*2
+)
+);
+
+sun.intensity=
+.25+daylight*2.1;
+
+skyLight.intensity=
+.35+daylight*1.4;
+
+const night=
+worldTime<6||worldTime>19;
+
+if(night){
+
+scene.background.set(0x111b31);
+scene.fog.color.set(0x111b31);
+
+for(const l of lamps)
+l.intensity=.8;
+
+}else{
+
+scene.background.set(0x82afd0);
+scene.fog.color.set(0x82afd0);
+
+for(const l of lamps)
+l.intensity=0;
+}
+
+const h=
+Math.floor(worldTime);
+
+const m=
+Math.floor((worldTime-h)*60);
+
+document.getElementById(
+"time"
+).textContent=
+String(h).padStart(2,"0")
++":"
++String(m).padStart(2,"0");
+}
+
+
+// ======================================================
+// WANTED SYSTEM
+// ======================================================
+
+function increaseWanted(){
+
+player.wanted=
+Math.min(
+5,
+player.wanted+1
+);
+
+show(
+"WANTED LEVEL "+player.wanted
+);
+}
+
+
+// ======================================================
+// MISSIONS
+// ======================================================
+
+let mission=0;
+
+const missions=[
+"Go to the vehicle dealership.",
+"Buy your first vehicle.",
+"Reach ₵50,000.",
+"Buy a Supercar.",
+"Buy a Hypercar.",
+"Buy the Helicopter.",
+"Explore Faisal City."
+];
+
+function updateMission(){
+
+if(mission===0){
+
+if(
+distance(
+player.x,
+player.z,
+dealerPosition.x,
+dealerPosition.z
+)<35
+){
+
+mission=1;
+show("Dealership reached. Buy a vehicle.");
+}
+}
+
+else if(mission===1){
+
+if(owned.length>0){
+
+mission=2;
+show("Good. Now build your money.");
+}
+}
+
+else if(mission===2){
+
+if(player.cash>=50000){
+
+mission=3;
+show("You have enough money for the Supercar.");
+}
+}
+
+else if(mission===3){
+
+if(owned.includes("super")){
+
+mission=4;
+show("Supercar acquired. Aim higher.");
+}
+}
+
+else if(mission===4){
+
+if(owned.includes("hyper")){
+
+mission=5;
+show("Hypercar acquired. The helicopter is next.");
+}
+}
+
+else if(mission===5){
+
+if(owned.includes("helicopter")){
+
+mission=6;
+show("You now own a helicopter. Explore the city.");
+}
+}
+
+document.getElementById(
+"missionText"
+).textContent=
+missions[mission];
+}
+
+
+// ======================================================
+// MONEY / JOB
+// ======================================================
+
+function action(){
+
+if(player.vehicle){
+
+show("Vehicle engine is running.");
+
+return;
+}
+
+if(
+distance(
+player.x,
+player.z,
+dealerPosition.x,
+dealerPosition.z
+)<40
+){
+
+openDealer();
+return;
+}
+
+
+// simple delivery job
+
+player.cash+=100;
+
+show(
+"Job completed: +₵100"
+);
+}
+
+document.getElementById(
+"action"
+).onclick=action;
+
+
+// ======================================================
+// MESSAGE
+// ======================================================
+
+let msgTimer;
+
+function show(t){
+
+const m=document.getElementById(
+"message"
+);
+
+m.textContent=t;
+m.style.display="block";
+
+clearTimeout(msgTimer);
+
+msgTimer=setTimeout(
+()=>{
+m.style.display="none";
+},
+2200
+);
+}
+
+
+// ======================================================
+// HUD
+// ======================================================
+
+function updateHUD(){
+
+document.getElementById(
+"cash"
+).textContent=
+Math.floor(player.cash).toLocaleString();
+
+document.getElementById(
+"wanted"
+).textContent=
+player.wanted;
+
+document.getElementById(
+"healthFill"
+).style.width=
+player.health+"%";
+
+document.getElementById(
+"energyFill"
+).style.width=
+player.energy+"%";
+
+document.getElementById(
+"vehicle"
+).textContent=
+player.vehicle
+?"Driving"
+:"On Foot";
+}
+
+
+// ======================================================
+// TOUCH BUTTONS
+// ======================================================
+
+function hold(id,key){
+
+const el=document.getElementById(id);
+
+el.addEventListener(
+"pointerdown",
+e=>{
+e.preventDefault();
+input[key]=true;
+}
+);
+
+el.addEventListener(
+"pointerup",
+e=>{
+e.preventDefault();
+input[key]=false;
+}
+);
+
+el.addEventListener(
+"pointercancel",
+()=>{
+input[key]=false;
+}
+);
+
+el.addEventListener(
+"pointerleave",
+()=>{
+input[key]=false;
+}
+);
+}
+
+hold("up","up");
+hold("down","down");
+hold("left","left");
+hold("right","right");
+hold("run","run");
+
+
+// ======================================================
+// KEYBOARD
+// ======================================================
+
+const keys={
+w:"up",
+ArrowUp:"up",
+s:"down",
+ArrowDown:"down",
+a:"left",
+ArrowLeft:"left",
+d:"right",
+ArrowRight:"right",
+Shift:"run"
+};
+
+window.addEventListener(
+"keydown",
+e=>{
+if(keys[e.key])
+input[keys[e.key]]=true;
+
+if(e.key.toLowerCase()==="e")
+enterVehicle();
+
+if(e.key.toLowerCase()==="f")
+action();
+}
+);
+
+window.addEventListener(
+"keyup",
+e=>{
+if(keys[e.key])
+input[keys[e.key]]=false;
+}
+);
+
+
+// ======================================================
+// RESIZE
+// ======================================================
+
+window.addEventListener(
+"resize",
+()=>{
+camera.aspect=
+innerWidth/innerHeight;
+
+camera.updateProjectionMatrix();
+
+renderer.setSize(
+innerWidth,
+innerHeight
+);
+}
+);
+
+
+// ======================================================
+// MAIN LOOP
+// ======================================================
+
+function animate(){
+
+requestAnimationFrame(animate);
+
+const delta=
+Math.min(
+clock.getDelta(),
+.05
+);
+
+movePlayer(delta);
+updateTraffic(delta);
+updateNPCs(delta);
+updateCamera();
+updateTime(delta);
+updateMission();
+updateHUD();
+
+renderer.render(
+scene,
+camera
+);
+}
+
+
+// ======================================================
+// START
+// ======================================================
+
+document.getElementById(
+"loading"
+).style.display="none";
+
+show("Welcome to Faisal City.");
+
+animate();
+
+</script>
+
+</body>
+</html>

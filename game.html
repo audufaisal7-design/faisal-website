@@ -1,0 +1,1745 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<title>Faisal City</title>
+
+<style>
+*{box-sizing:border-box}
+body{
+    margin:0;
+    overflow:hidden;
+    background:#111;
+    font-family:Arial,sans-serif;
+    touch-action:none;
+}
+canvas{display:block}
+
+#hud{
+    position:fixed;
+    top:8px;
+    left:8px;
+    width:205px;
+    padding:10px;
+    color:white;
+    background:rgba(0,0,0,.78);
+    border-radius:12px;
+    z-index:10;
+    font-size:12px;
+}
+
+.bar{
+    height:7px;
+    background:#333;
+    margin:3px 0 6px;
+    border-radius:5px;
+    overflow:hidden;
+}
+.fill{height:100%;width:100%}
+#healthFill{background:#e53935}
+#energyFill{background:#f1d33b}
+#hungerFill{background:#e88b25}
+#thirstFill{background:#3198ff}
+
+#clock{
+    position:fixed;
+    top:8px;
+    left:50%;
+    transform:translateX(-50%);
+    background:rgba(0,0,0,.75);
+    color:white;
+    padding:7px 13px;
+    border-radius:18px;
+    z-index:10;
+}
+
+#missionBox{
+    position:fixed;
+    top:8px;
+    right:8px;
+    width:190px;
+    padding:10px;
+    background:rgba(0,0,0,.78);
+    color:white;
+    border-radius:12px;
+    z-index:10;
+    font-size:12px;
+}
+
+#message{
+    position:fixed;
+    top:55px;
+    left:50%;
+    transform:translateX(-50%);
+    background:rgba(0,0,0,.8);
+    color:white;
+    padding:8px 14px;
+    border-radius:10px;
+    z-index:20;
+    opacity:0;
+}
+
+#controls{
+    position:fixed;
+    left:15px;
+    bottom:15px;
+    display:grid;
+    grid-template-columns:58px 58px 58px;
+    grid-template-rows:58px 58px 58px;
+    gap:5px;
+    z-index:20;
+}
+
+button{
+    border:0;
+    border-radius:12px;
+    background:rgba(0,0,0,.72);
+    color:white;
+    font-weight:bold;
+}
+
+#up{grid-column:2}
+#left{grid-column:1;grid-row:2}
+#down{grid-column:2;grid-row:3}
+#right{grid-column:3;grid-row:2}
+
+#actions{
+    position:fixed;
+    right:12px;
+    bottom:15px;
+    display:flex;
+    flex-direction:column;
+    gap:7px;
+    z-index:20;
+}
+
+.action{
+    width:90px;
+    height:43px;
+    font-size:12px;
+}
+
+#dealer{
+    display:none;
+    position:fixed;
+    left:50%;
+    top:50%;
+    transform:translate(-50%,-50%);
+    width:300px;
+    max-height:80vh;
+    overflow:auto;
+    background:rgba(15,15,15,.96);
+    color:white;
+    padding:16px;
+    border-radius:16px;
+    z-index:50;
+}
+
+.carOption{
+    padding:10px;
+    margin:8px 0;
+    background:#292929;
+    border-radius:10px;
+}
+
+.carOption button{
+    width:100%;
+    height:35px;
+    margin-top:6px;
+    background:#444;
+}
+
+.close{
+    width:100%;
+    height:38px;
+    margin-top:8px;
+}
+</style>
+</head>
+
+<body>
+
+<canvas id="game"></canvas>
+
+<div id="hud">
+<b>FAISAL CITY</b><br><br>
+
+❤️ Health
+<div class="bar"><div id="healthFill" class="fill"></div></div>
+
+⚡ Energy
+<div class="bar"><div id="energyFill" class="fill"></div></div>
+
+🍗 Hunger
+<div class="bar"><div id="hungerFill" class="fill"></div></div>
+
+💧 Thirst
+<div class="bar"><div id="thirstFill" class="fill"></div></div>
+
+💰 Cash: ₵<span id="cash">100</span><br>
+🏦 Bank: ₵<span id="bank">0</span><br>
+⭐ Reputation: <span id="rep">0</span><br>
+🚨 Wanted: <span id="wanted">0</span><br>
+🚗 Vehicle: <span id="vehicle">Walking</span>
+</div>
+
+<div id="clock">08:00</div>
+
+<div id="missionBox">
+<b>MISSION</b><br>
+<span id="mission">Visit the dealership.</span>
+</div>
+
+<div id="message"></div>
+
+<div id="dealer">
+<h2>🚗 VEHICLE DEALERSHIP</h2>
+<div id="dealerCars"></div>
+<button class="close" onclick="closeDealer()">CLOSE</button>
+</div>
+
+<div id="controls">
+<button id="up">▲</button>
+<button id="left">◀</button>
+<button id="down">▼</button>
+<button id="right">▶</button>
+</div>
+
+<div id="actions">
+<button class="action" id="enterBtn">ENTER</button>
+<button class="action" id="actionBtn">ACTION</button>
+<button class="action" id="dealerBtn">DEALER</button>
+<button class="action" id="saveBtn">SAVE</button>
+</div>
+
+<script>
+const canvas=document.getElementById("game");
+const ctx=canvas.getContext("2d");
+
+function resize(){
+    canvas.width=innerWidth;
+    canvas.height=innerHeight;
+}
+resize();
+addEventListener("resize",resize);
+
+const keys={};
+
+const player={
+    x:900,
+    y:700,
+    speed:3,
+    health:100,
+    energy:100,
+    hunger:100,
+    thirst:100,
+    cash:100,
+    bank:0,
+    reputation:0,
+    wanted:0,
+    vehicle:null,
+    owned:[]
+};
+
+const game={
+    hour:8,
+    minute:0,
+    day:1,
+    mission:0,
+    cameraX:0,
+    cameraY:0,
+    running:true
+};
+
+const world={
+    width:3600,
+    height:2600
+};
+
+/* =========================
+   VEHICLE DATABASE
+========================= */
+
+const vehicleTypes=[
+    {
+        id:"city",
+        name:"City Car",
+        price:5000,
+        speed:7,
+        fuel:100,
+        color:"#d33"
+    },
+    {
+        id:"sport",
+        name:"Sport Car",
+        price:45000,
+        speed:9,
+        fuel:100,
+        color:"#eee"
+    },
+    {
+        id:"super",
+        name:"Supercar",
+        price:250000,
+        speed:11,
+        fuel:100,
+        color:"#ffb300"
+    },
+    {
+        id:"luxury",
+        name:"Luxury Car",
+        price:150000,
+        speed:8,
+        fuel:100,
+        color:"#222"
+    },
+    {
+        id:"hyper",
+        name:"Hypercar",
+        price:500000,
+        speed:13,
+        fuel:100,
+        color:"#7b2cff"
+    }
+];
+
+/* =========================
+   VEHICLES IN WORLD
+========================= */
+
+const cars=[
+    {
+        x:700,
+        y:600,
+        type:"city",
+        owned:false
+    },
+    {
+        x:1200,
+        y:900,
+        type:"sport",
+        owned:false
+    },
+    {
+        x:1700,
+        y:650,
+        type:"super",
+        owned:false
+    }
+];
+
+const helicopter={
+    x:2800,
+    y:1400,
+    speed:15,
+    fuel:100,
+    active:false
+};
+
+/* =========================
+   NPCs
+========================= */
+
+const npcs=[];
+
+for(let i=0;i<40;i++){
+
+    npcs.push({
+        x:Math.random()*3400+100,
+        y:Math.random()*2400+100,
+        dx:Math.random()-.5,
+        dy:Math.random()-.5
+    });
+}
+
+/* =========================
+   BUILDINGS
+========================= */
+
+const buildings=[];
+
+for(let x=100;x<3500;x+=300){
+
+    for(let y=100;y<2500;y+=300){
+
+        if(Math.random()>.28){
+
+            buildings.push({
+                x:x,
+                y:y,
+                w:180,
+                h:150
+            });
+        }
+    }
+}
+
+/* =========================
+   DEALERSHIP
+========================= */
+
+const dealership={
+    x:1000,
+    y:300
+};
+
+function openDealer(){
+
+    const box=document.getElementById("dealer");
+    const list=document.getElementById("dealerCars");
+
+    list.innerHTML="";
+
+    vehicleTypes.forEach(v=>{
+
+        const owned=player.owned.includes(v.id);
+
+        const div=document.createElement("div");
+
+        div.className="carOption";
+
+        div.innerHTML=
+            "<b>"+v.name+"</b><br>"+
+            "Price: ₵"+v.price.toLocaleString()+"<br>"+
+            "Speed: "+v.speed+
+            "<br>"+
+            "<button onclick=\"buyVehicle('"+
+            v.id+
+            "')\">"+
+            (owned?"OWNED":"BUY")+
+            "</button>";
+
+        list.appendChild(div);
+    });
+
+    box.style.display="block";
+}
+
+function closeDealer(){
+    document.getElementById("dealer").style.display="none";
+}
+
+function buyVehicle(id){
+
+    const v=vehicleTypes.find(x=>x.id===id);
+
+    if(!v)return;
+
+    if(player.owned.includes(id)){
+        say("You already own this vehicle.");
+        return;
+    }
+
+    if(player.cash<v.price){
+        say("You need ₵"+v.price.toLocaleString());
+        return;
+    }
+
+    player.cash-=v.price;
+    player.owned.push(id);
+
+    say("You bought the "+v.name+"!");
+
+    if(game.mission===0){
+
+        game.mission=1;
+
+        document.getElementById("mission").textContent=
+            "Drive your vehicle around the city.";
+    }
+
+    openDealer();
+}
+
+/* =========================
+   HELPERS
+========================= */
+
+function say(text){
+
+    const box=document.getElementById("message");
+
+    box.textContent=text;
+    box.style.opacity=1;
+
+    clearTimeout(say.timer);
+
+    say.timer=setTimeout(()=>{
+        box.style.opacity=0;
+    },2500);
+}
+
+function distance(a,b){
+
+    return Math.hypot(
+        a.x-b.x,
+        a.y-b.y
+    );
+}
+
+/* =========================
+   HUD
+========================= */
+
+function updateHUD(){
+
+    document.getElementById("healthFill").style.width=
+        player.health+"%";
+
+    document.getElementById("energyFill").style.width=
+        player.energy+"%";
+
+    document.getElementById("hungerFill").style.width=
+        player.hunger+"%";
+
+    document.getElementById("thirstFill").style.width=
+        player.thirst+"%";
+
+    document.getElementById("cash").textContent=
+        Math.floor(player.cash);
+
+    document.getElementById("bank").textContent=
+        Math.floor(player.bank);
+
+    document.getElementById("rep").textContent=
+        Math.floor(player.reputation);
+
+    document.getElementById("wanted").textContent=
+        Math.floor(player.wanted);
+
+    document.getElementById("vehicle").textContent=
+        player.vehicle ?
+        player.vehicle.name :
+        helicopter.active ?
+        "Helicopter" :
+        "Walking";
+}
+
+/* =========================
+   NEEDS
+========================= */
+
+function updateNeeds(){
+
+    player.hunger-=0.004;
+    player.thirst-=0.006;
+
+    if(player.hunger<0)
+        player.hunger=0;
+
+    if(player.thirst<0)
+        player.thirst=0;
+
+    if(player.hunger<10)
+        player.energy-=0.01;
+
+    if(player.thirst<10)
+        player.health-=0.01;
+
+    player.health=Math.max(
+        0,
+        player.health
+    );
+
+    player.energy=Math.max(
+        0,
+        player.energy
+    );
+}
+
+/* =========================
+   TIME
+========================= */
+
+function updateTime(){
+
+    game.minute++;
+
+    if(game.minute>=60){
+
+        game.minute=0;
+        game.hour++;
+    }
+
+    if(game.hour>=24){
+
+        game.hour=0;
+        game.day++;
+    }
+
+    document.getElementById("clock").textContent=
+        String(game.hour).padStart(2,"0")+
+        ":"+
+        String(game.minute).padStart(2,"0");
+}
+
+/* =========================
+   COLLISION
+========================= */
+
+function blocked(x,y){
+
+    for(const b of buildings){
+
+        if(
+            x>b.x-20 &&
+            x<b.x+b.w+20 &&
+            y>b.y-20 &&
+            y<b.y+b.h+20
+        ){
+            return true;
+        }
+    }
+
+    return false;
+}
+
+
+function blocked(x,y){
+
+    for(const b of buildings){
+
+        if(
+            x>b.x-20 &&
+            x<b.x+b.w+20 &&
+            y>b.y-20 &&
+            y<b.y+b.h+20
+        ){
+            return true;
+        }
+    }
+
+    return false;
+}
+/* =========================
+   PLAYER MOVEMENT
+========================= */
+
+function movePlayer(){
+
+    let dx=0;
+    let dy=0;
+
+    if(keys.up)dy--;
+    if(keys.down)dy++;
+    if(keys.left)dx--;
+    if(keys.right)dx++;
+
+    if(!dx&&!dy)return;
+
+    const len=Math.hypot(dx,dy);
+
+    dx/=len;
+    dy/=len;
+
+    let speed=player.speed;
+
+    if(player.vehicle){
+
+        speed=player.vehicle.speed;
+
+        player.vehicle.fuel-=0.02;
+
+        if(player.vehicle.fuel<=0){
+
+            player.vehicle.fuel=0;
+            speed=1;
+        }
+    }
+
+    if(helicopter.active){
+
+        speed=helicopter.speed;
+        helicopter.fuel-=0.03;
+
+        if(helicopter.fuel<=0){
+            helicopter.fuel=0;
+            speed=1;
+        }
+    }
+
+    const nx=player.x+dx*speed;
+    const ny=player.y+dy*speed;
+
+    if(
+        helicopter.active ||
+        player.vehicle ||
+        !blocked(nx,ny)
+    ){
+
+        player.x=nx;
+        player.y=ny;
+    }
+
+    player.x=Math.max(
+        20,
+        Math.min(world.width-20,player.x)
+    );
+
+    player.y=Math.max(
+        20,
+        Math.min(world.height-20,player.y)
+    );
+}
+
+
+/* =========================
+   NPC MOVEMENT
+========================= */
+
+function updateNPCs(){
+
+    for(const n of npcs){
+
+        n.x+=n.dx;
+        n.y+=n.dy;
+
+        if(Math.random()<0.01){
+
+            n.dx=Math.random()-0.5;
+            n.dy=Math.random()-0.5;
+        }
+
+        if(n.x<30||n.x>world.width-30)
+            n.dx*=-1;
+
+        if(n.y<30||n.y>world.height-30)
+            n.dy*=-1;
+    }
+}
+
+
+/* =========================
+   VEHICLE ENTRY
+========================= */
+
+function enterVehicle(){
+
+    if(player.vehicle){
+
+        say(
+            "You left the "+
+            player.vehicle.name
+        );
+
+        player.vehicle=null;
+
+        return;
+    }
+
+    if(helicopter.active){
+
+        helicopter.active=false;
+
+        say("You left the helicopter");
+
+        return;
+    }
+
+    for(const car of cars){
+
+        if(distance(player,car)<75){
+
+            const v=vehicleTypes.find(
+                x=>x.id===car.type
+            );
+
+            if(!v){
+                say("Vehicle error.");
+                return;
+            }
+
+            if(!player.owned.includes(v.id)){
+
+                say(
+                    "You don't own this vehicle. Visit the dealership."
+                );
+
+                return;
+            }
+
+            player.vehicle={
+                name:v.name,
+                speed:v.speed,
+                fuel:car.fuel,
+                color:v.color,
+                id:v.id
+            };
+
+            say(
+                "You entered your "+
+                v.name
+            );
+
+            return;
+        }
+    }
+
+    if(distance(player,helicopter)<110){
+
+        if(!player.owned.includes("helicopter")){
+
+            say(
+                "You need to buy a helicopter."
+            );
+
+            return;
+        }
+
+        helicopter.active=true;
+
+        say("Helicopter started.");
+
+        return;
+    }
+
+    say("Nothing nearby.");
+}
+
+
+/* =========================
+   ACTION
+========================= */
+
+function action(){
+
+    if(player.vehicle){
+
+        if(player.vehicle.fuel<100){
+
+            if(player.cash<50){
+
+                say("Not enough money for fuel.");
+
+                return;
+            }
+
+            player.cash-=50;
+
+            player.vehicle.fuel=100;
+
+            say("Vehicle refueled.");
+
+        }else{
+
+            say("Fuel is already full.");
+        }
+
+        return;
+    }
+
+    if(helicopter.active){
+
+        if(helicopter.fuel<100){
+
+            if(player.cash<100){
+
+                say("Not enough money.");
+
+                return;
+            }
+
+            player.cash-=100;
+
+            helicopter.fuel=100;
+
+            say("Helicopter refueled.");
+
+        }else{
+
+            say("Helicopter fuel is full.");
+        }
+
+        return;
+    }
+
+    if(player.hunger<70){
+
+        if(player.cash<10){
+
+            say("You need money for food.");
+
+            return;
+        }
+
+        player.cash-=10;
+
+        player.hunger=Math.min(
+            100,
+            player.hunger+30
+        );
+
+        say("You bought food.");
+
+        return;
+    }
+
+    if(player.thirst<70){
+
+        if(player.cash<5){
+
+            say("You need money for water.");
+
+            return;
+        }
+
+        player.cash-=5;
+
+        player.thirst=Math.min(
+            100,
+            player.thirst+35
+        );
+
+        say("You bought water.");
+
+        return;
+    }
+
+    say("Nothing to do here.");
+}
+
+
+/* =========================
+   SAVE GAME
+========================= */
+
+function saveGame(){
+
+    localStorage.setItem(
+        "faisalCitySave",
+        JSON.stringify({
+            player:player,
+            game:game,
+            helicopter:helicopter
+        })
+    );
+
+    say("Game saved.");
+}
+
+
+/* =========================
+   LOAD GAME
+========================= */
+
+function loadGame(){
+
+    const data=
+        localStorage.getItem(
+            "faisalCitySave"
+        );
+
+    if(!data)return;
+
+    try{
+
+        const save=JSON.parse(data);
+
+        Object.assign(
+            player,
+            save.player
+        );
+
+        Object.assign(
+            game,
+            save.game
+        );
+
+        if(save.helicopter){
+
+            Object.assign(
+                helicopter,
+                save.helicopter
+            );
+        }
+
+    }catch(e){
+
+        console.log("Save error");
+    }
+}
+
+
+/* =========================
+   DRAW WORLD
+========================= */
+
+function drawWorld(){
+
+    ctx.fillStyle="#65a84a";
+
+    ctx.fillRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
+
+    ctx.save();
+
+    ctx.translate(
+        -game.cameraX,
+        -game.cameraY
+    );
+
+
+    /* ROADS */
+
+    ctx.fillStyle="#454545";
+
+    for(
+        let x=0;
+        x<world.width;
+        x+=300
+    ){
+
+        ctx.fillRect(
+            x,
+            0,
+            70,
+            world.height
+        );
+    }
+
+    for(
+        let y=0;
+        y<world.height;
+        y+=300
+    ){
+
+        ctx.fillRect(
+            0,
+            y,
+            world.width,
+            70
+        );
+    }
+
+
+    /* ROAD MARKINGS */
+
+    ctx.strokeStyle="#eee";
+    ctx.lineWidth=3;
+    ctx.setLineDash([20,20]);
+
+    for(
+        let x=35;
+        x<world.width;
+        x+=300
+    ){
+
+        ctx.beginPath();
+
+        ctx.moveTo(x,0);
+
+        ctx.lineTo(
+            x,
+            world.height
+        );
+
+        ctx.stroke();
+    }
+
+    for(
+        let y=35;
+        y<world.height;
+        y+=300
+    ){
+
+        ctx.beginPath();
+
+        ctx.moveTo(0,y);
+
+        ctx.lineTo(
+            world.width,
+            y
+        );
+
+        ctx.stroke();
+    }
+
+    ctx.setLineDash([]);
+
+
+    /* BUILDINGS */
+
+    for(const b of buildings){
+
+        ctx.fillStyle="#777";
+
+        ctx.fillRect(
+            b.x,
+            b.y,
+            b.w,
+            b.h
+        );
+
+        ctx.fillStyle="#333";
+
+        for(
+            let wx=b.x+20;
+            wx<b.x+b.w-10;
+            wx+=40
+        ){
+
+            for(
+                let wy=b.y+20;
+                wy<b.y+b.h-10;
+                wy+=40
+            ){
+
+                ctx.fillRect(
+                    wx,
+                    wy,
+                    20,
+                    20
+                );
+            }
+        }
+    }
+
+
+    /* DEALERSHIP */
+
+    ctx.fillStyle="#1455a0";
+
+    ctx.fillRect(
+        dealership.x,
+        dealership.y,
+        180,
+        100
+    );
+
+    ctx.fillStyle="white";
+
+    ctx.font="18px Arial";
+
+    ctx.textAlign="center";
+
+    ctx.fillText(
+        "CAR DEALERSHIP",
+        dealership.x+90,
+        dealership.y+55
+    );
+
+
+    /* NPCs */
+
+    for(const n of npcs){
+
+        ctx.fillStyle="#222";
+
+        ctx.beginPath();
+
+        ctx.arc(
+            n.x,
+            n.y,
+            8,
+            0,
+            Math.PI*2
+        );
+
+        ctx.fill();
+
+        ctx.fillStyle="#e0ad82";
+
+        ctx.beginPath();
+
+        ctx.arc(
+            n.x,
+            n.y-8,
+            6,
+            0,
+            Math.PI*2
+        );
+
+        ctx.fill();
+    }
+
+
+    /* CARS */
+
+    for(const car of cars){
+
+        const v=vehicleTypes.find(
+            x=>x.id===car.type
+        );
+
+        if(v){
+
+            drawCar(
+                car.x,
+                car.y,
+                v,
+                player.vehicle &&
+                player.vehicle.id===v.id
+            );
+        }
+    }
+
+
+    /* HELICOPTER */
+
+    drawHelicopter();
+
+
+    /* PLAYER */
+
+    if(
+        !player.vehicle &&
+        !helicopter.active
+    ){
+
+        ctx.fillStyle="#1769e0";
+
+        ctx.fillRect(
+            player.x-12,
+            player.y-18,
+            24,
+            36
+        );
+
+        ctx.fillStyle="#e0ad82";
+
+        ctx.beginPath();
+
+        ctx.arc(
+            player.x,
+            player.y-25,
+            9,
+            0,
+            Math.PI*2
+        );
+
+        ctx.fill();
+
+        ctx.fillStyle="white";
+
+        ctx.font="12px Arial";
+
+        ctx.fillText(
+            "FAISAL",
+            player.x,
+            player.y-40
+        );
+    }
+
+    ctx.restore();
+}
+
+
+/* =========================
+   DRAW CAR
+========================= */
+
+function drawCar(x,y,v,active){
+
+    ctx.save();
+
+    ctx.translate(x,y);
+
+    ctx.fillStyle=v.color;
+
+    ctx.fillRect(
+        -28,
+        -14,
+        56,
+        28
+    );
+
+    ctx.fillStyle="#111";
+
+    ctx.fillRect(
+        -19,
+        -19,
+        14,
+        7
+    );
+
+    ctx.fillRect(
+        5,
+        -19,
+        14,
+        7
+    );
+
+    ctx.fillRect(
+        -19,
+        12,
+        14,
+        7
+    );
+
+    ctx.fillRect(
+        5,
+        12,
+        14,
+        7
+    );
+
+    ctx.fillStyle="#9ed7e8";
+
+    ctx.fillRect(
+        -12,
+        -9,
+        24,
+        8
+    );
+
+    if(
+        v.id==="super" ||
+        v.id==="hyper"
+    ){
+
+        ctx.fillStyle="#fff";
+
+        ctx.fillRect(
+            -22,
+            -11,
+            5,
+            22
+        );
+    }
+
+    if(active){
+
+        ctx.strokeStyle="white";
+
+        ctx.lineWidth=3;
+
+        ctx.strokeRect(
+            -33,
+            -20,
+            66,
+            40
+        );
+    }
+
+    ctx.restore();
+}
+
+
+/* =========================
+   DRAW HELICOPTER
+========================= */
+
+function drawHelicopter(){
+
+    ctx.save();
+
+    ctx.translate(
+        helicopter.x,
+        helicopter.y
+    );
+
+    ctx.fillStyle="#263238";
+
+    ctx.fillRect(
+        -35,
+        -12,
+        55,
+        24
+    );
+
+    ctx.fillStyle="#555";
+
+    ctx.fillRect(
+        15,
+        -5,
+        50,
+        10
+    );
+
+    ctx.strokeStyle="#111";
+
+    ctx.lineWidth=4;
+
+    ctx.beginPath();
+
+    ctx.moveTo(-50,-25);
+
+    ctx.lineTo(50,-25);
+
+    ctx.stroke();
+
+    ctx.beginPath();
+
+    ctx.moveTo(0,-25);
+
+    ctx.lineTo(0,5);
+
+    ctx.stroke();
+
+    if(helicopter.active){
+
+        ctx.strokeStyle="white";
+
+        ctx.strokeRect(
+            -45,
+            -32,
+            90,
+            50
+        );
+    }
+
+    ctx.restore();
+}
+
+
+/* =========================
+   CAMERA
+========================= */
+
+function updateCamera(){
+
+    game.cameraX=
+        player.x-
+        canvas.width/2;
+
+    game.cameraY=
+        player.y-
+        canvas.height/2;
+
+    game.cameraX=Math.max(
+        0,
+        Math.min(
+            world.width-canvas.width,
+            game.cameraX
+        )
+    );
+
+    game.cameraY=Math.max(
+        0,
+        Math.min(
+            world.height-canvas.height,
+            game.cameraY
+        )
+    );
+}
+
+
+/* =========================
+   MISSIONS
+========================= */
+
+function updateMission(){
+
+    if(game.mission===0){
+
+        const d=distance(
+            player,
+            dealership
+        );
+
+        if(d<180){
+
+            game.mission=1;
+
+            document.getElementById(
+                "mission"
+            ).textContent=
+                "Buy a vehicle.";
+
+            say(
+                "Dealership found!"
+            );
+        }
+    }
+
+
+    if(game.mission===1){
+
+        if(player.owned.length>0){
+
+            game.mission=2;
+
+            document.getElementById(
+                "mission"
+            ).textContent=
+                "Drive around the city.";
+
+            say(
+                "Vehicle purchased! Explore the city."
+            );
+        }
+    }
+
+
+    if(game.mission===2){
+
+        player.reputation+=0.001;
+
+        if(player.reputation>=10){
+
+            game.mission=3;
+
+            document.getElementById(
+                "mission"
+            ).textContent=
+                "Buy the Supercar.";
+
+            say(
+                "New mission: Become successful."
+            );
+        }
+    }
+
+
+    if(game.mission===3){
+
+        if(
+            player.owned.includes("super")
+        ){
+
+            game.mission=4;
+
+            player.cash+=5000;
+
+            player.reputation+=10;
+
+            document.getElementById(
+                "mission"
+            ).textContent=
+                "Buy the Hypercar.";
+
+            say(
+                "Mission complete! +₵5000"
+            );
+        }
+    }
+
+
+    if(game.mission===4){
+
+        if(
+            player.owned.includes("hyper")
+        ){
+
+            game.mission=5;
+
+            player.cash+=10000;
+
+            document.getElementById(
+                "mission"
+            ).textContent=
+                "Buy the helicopter.";
+
+            say(
+                "Amazing! You're becoming successful."
+            );
+        }
+    }
+}
+
+
+/* =========================
+   MAIN GAME LOOP
+========================= */
+
+function loop(){
+
+    if(!game.running)return;
+
+    movePlayer();
+
+    updateNPCs();
+
+    updateNeeds();
+
+    updateMission();
+
+    updateTime();
+
+    updateCamera();
+
+    updateHUD();
+
+    drawWorld();
+
+    requestAnimationFrame(loop);
+}
+
+
+/* =========================
+   TOUCH CONTROLS
+========================= */
+
+function hold(button,name){
+
+    button.addEventListener(
+        "touchstart",
+        e=>{
+            e.preventDefault();
+            keys[name]=true;
+        }
+    );
+
+    button.addEventListener(
+        "touchend",
+        e=>{
+            e.preventDefault();
+            keys[name]=false;
+        }
+    );
+
+    button.addEventListener(
+        "mousedown",
+        ()=>{
+            keys[name]=true;
+        }
+    );
+
+    button.addEventListener(
+        "mouseup",
+        ()=>{
+            keys[name]=false;
+        }
+    );
+
+    button.addEventListener(
+        "mouseleave",
+        ()=>{
+            keys[name]=false;
+        }
+    );
+}
+
+
+hold(
+    document.getElementById("up"),
+    "up"
+);
+
+hold(
+    document.getElementById("down"),
+    "down"
+);
+
+hold(
+    document.getElementById("left"),
+    "left"
+);
+
+hold(
+    document.getElementById("right"),
+    "right"
+);
+
+
+/* =========================
+   BUTTONS
+========================= */
+
+document.getElementById(
+    "enterBtn"
+).addEventListener(
+    "click",
+    enterVehicle
+);
+
+document.getElementById(
+    "actionBtn"
+).addEventListener(
+    "click",
+    action
+);
+
+document.getElementById(
+    "dealerBtn"
+).addEventListener(
+    "click",
+    openDealer
+);
+
+document.getElementById(
+    "saveBtn"
+).addEventListener(
+    "click",
+    saveGame
+);
+
+
+/* =========================
+   KEYBOARD
+========================= */
+
+addEventListener(
+    "keydown",
+    e=>{
+
+        if(
+            e.key==="ArrowUp" ||
+            e.key==="w"
+        )
+            keys.up=true;
+
+        if(
+            e.key==="ArrowDown" ||
+            e.key==="s"
+        )
+            keys.down=true;
+
+        if(
+            e.key==="ArrowLeft" ||
+            e.key==="a"
+        )
+            keys.left=true;
+
+        if(
+            e.key==="ArrowRight" ||
+            e.key==="d"
+        )
+            keys.right=true;
+
+        if(e.key==="e")
+            enterVehicle();
+    }
+);
+
+
+addEventListener(
+    "keyup",
+    e=>{
+
+        if(
+            e.key==="ArrowUp" ||
+            e.key==="w"
+        )
+            keys.up=false;
+
+        if(
+            e.key==="ArrowDown" ||
+            e.key==="s"
+        )
+            keys.down=false;
+
+        if(
+            e.key==="ArrowLeft" ||
+            e.key==="a"
+        )
+            keys.left=false;
+
+        if(
+            e.key==="ArrowRight" ||
+            e.key==="d"
+        )
+            keys.right=false;
+    }
+);
+
+
+/* =========================
+   START GAME
+========================= */
+
+loadGame();
+
+updateHUD();
+
+loop();
+
+</script>
+
+</body>
+</html>

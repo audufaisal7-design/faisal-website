@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Future Builder</title>
+
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background: #0f172a;
+    color: white;
+    min-height: 100vh;
+}
+
+header {
+    text-align: center;
+    padding: 25px 15px;
+    background: #111827;
+}
+
+header h1 {
+    font-size: 32px;
+}
+
+header p {
+    color: #94a3b8;
+    margin-top: 8px;
+}
+
+.container {
+    max-width: 700px;
+    margin: auto;
+    padding: 20px;
+}
+
+.stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.stat {
+    background: #1e293b;
+    padding: 18px;
+    border-radius: 15px;
+    text-align: center;
+}
+
+.stat span {
+    display: block;
+    color: #94a3b8;
+    margin-bottom: 7px;
+}
+
+.stat strong {
+    font-size: 24px;
+}
+
+.game-card {
+    background: #1e293b;
+    padding: 25px;
+    border-radius: 18px;
+    margin-bottom: 20px;
+}
+
+.game-card h2 {
+    margin-bottom: 15px;
+}
+
+.game-card p {
+    color: #cbd5e1;
+    line-height: 1.6;
+}
+
+.choice {
+    width: 100%;
+    margin-top: 12px;
+    padding: 16px;
+    border: 1px solid #475569;
+    border-radius: 12px;
+    background: #334155;
+    color: white;
+    text-align: left;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.choice:hover {
+    background: #475569;
+}
+
+button {
+    font-weight: bold;
+}
+
+.restart {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 12px;
+    background: #dc2626;
+    color: white;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.message {
+    text-align: center;
+    padding: 15px;
+    color: #cbd5e1;
+}
+
+.achievement {
+    background: #172554;
+    padding: 15px;
+    border-radius: 12px;
+    margin-top: 15px;
+}
+
+.hidden {
+    display: none;
+}
+
+footer {
+    text-align: center;
+    padding: 25px;
+    color: #64748b;
+}
+
+@media (max-width: 500px) {
+    header h1 {
+        font-size: 27px;
+    }
+
+    .container {
+        padding: 15px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>🌍 FUTURE BUILDER</h1>
+    <p>Your choices. Your future.</p>
+</header>
+
+<div class="container">
+
+    <div class="stats">
+
+        <div class="stat">
+            <span>💰 Money</span>
+            <strong id="money">50</strong>
+        </div>
+
+        <div class="stat">
+            <span>🧠 Skills</span>
+            <strong id="skills">0</strong>
+        </div>
+
+        <div class="stat">
+            <span>⭐ Reputation</span>
+            <strong id="reputation">0</strong>
+        </div>
+
+        <div class="stat">
+            <span>📅 Year</span>
+            <strong id="year">1</strong>
+        </div>
+
+    </div>
+
+    <div class="game-card">
+
+        <h2 id="title">
+            Your Journey Begins
+        </h2>
+
+        <p id="story">
+            You are starting with only 50 coins.
+            Nobody knows your name yet.
+            Your future will depend on the decisions you make.
+        </p>
+
+        <div id="choices"></div>
+
+    </div>
+
+    <div id="message" class="message"></div>
+
+    <div id="achievementBox" class="achievement hidden">
+        🏆 <strong>Achievement Unlocked!</strong>
+        <p id="achievementText"></p>
+    </div>
+
+    <button class="restart" onclick="restartGame()">
+        🔄 Restart Game
+    </button>
+
+</div>
+
+<footer>
+    FAISAL TECH © 2026<br>
+    Future Builder
+</footer>
+
+<script>
+
+let game = {
+    money: 50,
+    skills: 0,
+    reputation: 0,
+    year: 1,
+    decisions: 0,
+    business: false,
+    achievements: []
+};
+
+const scenes = [
+
+{
+    title: "Your First Decision",
+    story:
+    "You have 50 coins. You want to build a better future. What will you do?",
+
+    choices: [
+
+        {
+            text: "🛠️ Buy a tool and learn a skill",
+            money: -25,
+            skills: 3,
+            reputation: 0,
+            message: "You invested in yourself. Your skills increased."
+        },
+
+        {
+            text: "🏪 Start a small business",
+            money: 20,
+            skills: 1,
+            reputation: 2,
+            business: true,
+            message: "Your small business starts making a little profit."
+        },
+
+        {
+            text: "💰 Save your money",
+            money: 15,
+            skills: 0,
+            reputation: 0,
+            message: "You decided to protect your money."
+        }
+
+    ]
+},
+
+{
+    title: "A Broken Phone",
+    story:
+    "Someone brings you a broken phone and asks if you can help.",
+
+    choices: [
+
+        {
+            text: "🔧 Try to repair it",
+            money: 15,
+            skills: 4,
+            reputation: 3,
+            message: "Your repair works! People begin trusting your skills."
+        },
+
+        {
+            text: "📚 Study first before repairing it",
+            money: 0,
+            skills: 5,
+            reputation: 1,
+            message: "You chose knowledge. Your technical skills grew."
+        },
+
+        {
+            text: "🚶 Walk away",
+            money: 0,
+            skills: 0,
+            reputation: -1,
+            message: "You avoided the risk, but lost a small opportunity."
+        }
+
+    ]
+},
+
+{
+    title: "The Business Opportunity",
+    story:
+    "A bigger opportunity appears. You need money and courage to take it.",
+
+    choices: [
+
+        {
+            text: "🚀 Take the risk",
+            money: -20,
+            skills: 3,
+            reputation: 4,
+            business: true,
+            message: "The risk pays off. Your business becomes stronger."
+        },
+
+        {
+            text: "💰 Save first",
+            money: 25,
+            skills: 1,
+            reputation: 1,
+            message: "You chose patience and financial stability."
+        },
+
+        {
+            text: "🤝 Work with someone",
+            money: 10,
+            skills: 2,
+            reputation: 4,
+            message: "Working with others increases your reputation."
+        }
+
+    ]
+},
+
+{
+    title: "A Technology Challenge",
+    story:
+    "You discover a difficult technology problem. Solving it could change your future.",
+
+    choices: [
+
+        {
+            text: "💻 Solve it yourself",
+            money: 10,
+            skills: 6,
+            reputation: 5,
+            message: "You solved the challenge! Your technical reputation grows."
+        },
+
+        {
+            text: "👨‍🏫 Find a mentor",
+            money: -5,
+            skills: 5,
+            reputation: 3,
+            message: "A mentor teaches you something valuable."
+        },
+
+        {
+            text: "❌ Give up",
+            money: 0,
+            skills: 0,
+            reputation: -2,
+            message: "You gave up this time. Every journey has difficult moments."
+        }
+
+    ]
+},
+
+{
+    title: "Your Big Decision",
+    story:
+    "You are now entering another stage of your life. What matters most?",
+
+    choices: [
+
+        {
+            text: "🏢 Build a company",
+            money: -30,
+            skills: 5,
+            reputation: 8,
+            business: true,
+            message: "You begin building something much bigger."
+        },
+
+        {
+            text: "🎓 Master your skills",
+            money: -10,
+            skills: 10,
+            reputation: 4,
+            message: "You focus completely on becoming highly skilled."
+        },
+
+        {
+            text: "🌍 Help other people",
+            money: -5,
+            skills: 3,
+            reputation: 10,
+            message: "People remember you for helping them."
+        }
+
+    ]
+}
+
+];
+
+
+function updateStats() {
+
+    document.getElementById("money").textContent =
+        game.money;
+
+    document.getElementById("skills").textContent =
+        game.skills;
+
+    document.getElementById("reputation").textContent =
+        game.reputation;
+
+    document.getElementById("year").textContent =
+        game.year;
+}
+
+
+function showScene() {
+
+    updateStats();
+
+    let sceneIndex =
+        (game.decisions) % scenes.length;
+
+    let scene = scenes[sceneIndex];
+
+    document.getElementById("title").textContent =
+        scene.title;
+
+    document.getElementById("story").textContent =
+        scene.story;
+
+    let choices =
+        document.getElementById("choices");
+
+    choices.innerHTML = "";
+
+    scene.choices.forEach(function(choice) {
+
+        let button =
+            document.createElement("button");
+
+        button.className = "choice";
+
+        button.textContent =
+            choice.text;
+
+        button.onclick =
+            function() {
+                makeChoice(choice);
+            };
+
+        choices.appendChild(button);
+
+    });
+}
+
+
+function makeChoice(choice) {
+
+    game.money += choice.money || 0;
+
+    game.skills += choice.skills || 0;
+
+    game.reputation += choice.reputation || 0;
+
+    if (game.money < 0) {
+        game.money = 0;
+    }
+
+    if (game.skills < 0) {
+        game.skills = 0;
+    }
+
+    if (game.reputation < 0) {
+        game.reputation = 0;
+    }
+
+    if (choice.business) {
+        game.business = true;
+    }
+
+    game.decisions++;
+
+    game.year =
+        Math.floor(game.decisions / scenes.length) + 1;
+
+    document.getElementById("message").textContent =
+        choice.message;
+
+    checkAchievements();
+
+    updateStats();
+
+    if (game.decisions >= 10) {
+        finishGame();
+    } else {
+
+        setTimeout(function() {
+            showScene();
+        }, 900);
+
+    }
+
+}
+
+
+function checkAchievements() {
+
+    if (
+        game.skills >= 10 &&
+        !game.achievements.includes("Skill Master")
+    ) {
+
+        game.achievements.push("Skill Master");
+
+        showAchievement(
+            "🧠 Skill Master — You reached 10 skill points!"
+        );
+
+    }
+
+    if (
+        game.reputation >= 15 &&
+        !game.achievements.includes("Community Leader")
+    ) {
+
+        game.achievements.push("Community Leader");
+
+        showAchievement(
+            "⭐ Community Leader — People know and trust you!"
+        );
+
+    }
+
+    if (
+        game.money >= 100 &&
+        !game.achievements.includes("Money Maker")
+    ) {
+
+        game.achievements.push("Money Maker");
+
+        showAchievement(
+            "💰 Money Maker — You reached 100 coins!"
+        );
+
+    }
+
+    if (
+        game.business &&
+        !game.achievements.includes("Entrepreneur")
+    ) {
+
+        game.achievements.push("Entrepreneur");
+
+        showAchievement(
+            "🏪 Entrepreneur — You started a business!"
+        );
+
+    }
+
+}
+
+
+function showAchievement(text) {
+
+    document
+        .getElementById("achievementBox")
+        .classList.remove("hidden");
+
+    document
+        .getElementById("achievementText")
+        .textContent = text;
+
+}
+
+
+function finishGame() {
+
+    updateStats();
+
+    let ending = "";
+
+    if (
+        game.skills >= 20 &&
+        game.reputation >= 20
+    ) {
+
+        ending =
+        "🏆 TECH LEADER: You became a highly skilled and respected technology leader.";
+
+    }
+
+    else if (
+        game.money >= 100 &&
+        game.business
+    ) {
+
+        ending =
+        "💼 BUSINESS BUILDER: You built a successful business.";
+
+    }
+
+    else if (
+        game.reputation >= 20
+    ) {
+
+        ending =
+        "🌍 COMMUNITY LEADER: People remember you because of the impact you made.";
+
+    }
+
+    else if (
+        game.skills >= 20
+    ) {
+
+        ending =
+        "💻 TECH EXPERT: Your skills became your greatest advantage.";
+
+    }
+
+    else {
+
+        ending =
+        "🌱 THE BEGINNING: Your journey is only starting. There is still more to build.";
+
+    }
+
+    document.getElementById("title").textContent =
+        "🎉 Your Journey So Far";
+
+    document.getElementById("story").textContent =
+        ending;
+
+    document.getElementById("choices").innerHTML =
+        "<p style='margin-top:15px;color:#cbd5e1;'>Your final choices shaped your story. Restart and try a completely different path.</p>";
+
+    document.getElementById("message").textContent =
+        "You completed your first journey.";
+
+}
+
+
+function restartGame() {
+
+    game = {
+        money: 50,
+        skills: 0,
+        reputation: 0,
+               year: 1,
+        decisions: 0,
+        business: false,
+        achievements: []
+    };
+
+    document.getElementById("achievementBox")
+        .classList.add("hidden");
+
+    document.getElementById("message").textContent = "";
+
+    showScene();
+}
+
+showScene();
+
+</script>
+
+</body>
+</html>
