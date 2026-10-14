@@ -1,28 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-<meta name="google-site-verification" content="xnTmrs4kdcre3ZHIRxAWaDmYsfFJt-SvtA0G6kANzSM" />
 <meta charset="UTF-8">
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3490899379499353"
-     crossorigin="anonymous"></script>
-<meta name="viewport"
-content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<meta name="google-site-verification" content="xnTmrs4kdcre3ZHIRxAWaDmYsfFJt-SvtA0G6kANzSM">
 
 <title>Faisal Audu | My Website</title>
-<meta name="description" content="Faisal Audu is a young Ghanaian learning computer hardware, software, networking and web development.">
-<style>
 
+<meta name="description" content="Faisal Audu is a Ghanaian technology learner exploring computer hardware, software, networking and web development.">
+
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3490899379499353" crossorigin="anonymous"></script>
+
+<style>
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
+html {
+    scroll-behavior: smooth;
+}
+
 body {
     font-family: Arial, sans-serif;
     background: #07111f;
     color: white;
+    line-height: 1.7;
 }
 
 header {
@@ -34,10 +39,11 @@ header {
 .nav {
     max-width: 1000px;
     margin: auto;
-
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
 }
 
 .logo {
@@ -46,14 +52,21 @@ header {
     letter-spacing: 3px;
 }
 
-.logo span {
+.logo span,
+h2 span,
+.hero h1 span {
     color: #38bdf8;
+}
+
+nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
 }
 
 nav a {
     color: white;
     text-decoration: none;
-    margin-left: 15px;
     font-size: 14px;
 }
 
@@ -62,15 +75,12 @@ nav a:hover {
 }
 
 .hero {
-    min-height: 85vh;
-
+    min-height: 75vh;
     display: flex;
     align-items: center;
     justify-content: center;
-
     text-align: center;
-
-    padding: 40px 20px;
+    padding: 50px 20px;
 }
 
 .hero-content {
@@ -83,144 +93,46 @@ nav a:hover {
 }
 
 .hero h1 {
-    font-size: 60px;
+    font-size: clamp(36px, 8vw, 60px);
     margin: 15px 0;
-}
-
-.hero h1 span {
-    color: #38bdf8;
+    line-height: 1.2;
 }
 
 .hero p {
     color: #a9bdd4;
     font-size: 18px;
-    line-height: 1.7;
 }
 
 .button {
     display: inline-block;
-
     margin-top: 25px;
-
-    padding: 13px 25px;
-
+    padding: 12px 25px;
     background: #38bdf8;
     color: #06111f;
-
     text-decoration: none;
-
     border-radius: 10px;
-
     font-weight: bold;
 }
 
 .button:hover {
-    transform: translateY(-3px);
+    background: #7dd3fc;
 }
 
-@media(max-width:600px) {
-
-    .nav {
-        flex-direction: column;
-        gap: 15px;
-    }
-
-    nav a {
-        margin: 5px;
-    }
-
-    .hero h1 {
-        font-size: 45px;
-    }
-
+section {
+    scroll-margin-top: 20px;
 }
 
-</style>
-
-</head>
-
-
-<body>
-
-
-<header>
-
-<div class="nav">
-
-<div class="logo">
-FAI<span>SAL</span>
-</div>
-
-<nav>
-
-<a href="#home">Home</a>
-
-<a href="#about">About</a>
-
-<a href="#skills">Skills</a>
-
-<a href="#projects">Projects</a>
-
-<a href="#contact">Contact</a>
-
-</nav>
-
-</div>
-
-</header>
-
-
-<section class="hero" id="home">
-
-<div class="hero-content">
-
-<small>
-WELCOME TO MY WEBSITE
-</small>
-
-<h1>
-I'm <span>Faisal Audu.</span>
-</h1>
-
-<p>
-A young Ghanaian learning computer
-hardware, software, networking and
-web development.
-</p>
-
-<a
-href="#about"
-class="button">
-
-Discover More
-
-</a>
-
-</div>
-
-</section>
-
-
-<!-- ABOUT SECTION -->
-
-<section id="about">
-
-<style>
-
-.about {
+.container {
     max-width: 1000px;
     margin: auto;
-    padding: 80px 20px;
+    padding: 70px 20px;
 }
 
-.about h2 {
+h2 {
     text-align: center;
     font-size: 35px;
-    margin-bottom: 25px;
-}
-
-.about h2 span {
-    color: #38bdf8;
+    margin-bottom: 30px;
+    line-height: 1.3;
 }
 
 .about-text {
@@ -228,49 +140,37 @@ Discover More
     margin: auto;
     text-align: center;
     color: #a9bdd4;
-    line-height: 1.8;
     font-size: 17px;
 }
 
-
-/* SKILLS */
-
-.skills {
-    max-width: 1000px;
-    margin: auto;
-    padding: 80px 20px;
-}
-
-.skills h2 {
-    text-align: center;
-    font-size: 35px;
-    margin-bottom: 35px;
-}
-
-.skills h2 span {
-    color: #38bdf8;
-}
-
-.skill-grid {
+.skill-grid,
+.project-grid {
     display: grid;
-    grid-template-columns:
-    repeat(2, 1fr);
-
+    grid-template-columns: repeat(2, 1fr);
     gap: 20px;
 }
 
-.skill-card {
+.project-grid {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.skill-card,
+.project-card,
+.contact-box,
+.signin-box {
     background: #0b1728;
     border: 1px solid #1e3a56;
-
-    padding: 25px;
-
     border-radius: 15px;
+    overflow: hidden;
+}
 
+.skill-card {
+    padding: 25px;
     transition: 0.3s;
 }
 
-.skill-card:hover {
+.skill-card:hover,
+.project-card:hover {
     transform: translateY(-5px);
     border-color: #38bdf8;
 }
@@ -280,416 +180,55 @@ Discover More
     margin-bottom: 10px;
 }
 
-.skill-card h3 {
-    margin-bottom: 8px;
-}
-
-.skill-card p {
-    color: #8fa8bf;
-}
-
-@media(max-width:600px) {
-
-    .skill-grid {
-        grid-template-columns: 1fr;
-    }
-
-}
-
-</style>
-
-
-<div class="about">
-
-<h2>
-About <span>Me</span>
-</h2>
-
-<p class="about-text">
-
-My name is Faisal. I am a young Ghanaian
-interested in technology.
-
-I am learning computer hardware,
-software, networking and web development.
-
-I enjoy learning how technology works
-and building things with my phone.
-
-</p>
-
-</div>
-
-
-<div class="skills" id="skills">
-
-<h2>
-My <span>Skills</span>
-</h2>
-
-
-<div class="skill-grid">
-
-
-<div class="skill-card">
-
-<div class="skill-icon">
-💻
-</div>
-
-<h3>
-Computer Hardware
-</h3>
-
-<p>
-Learning computer components,
-troubleshooting and maintenance.
-</p>
-
-</div>
-
-
-<div class="skill-card">
-
-<div class="skill-icon">
-🌐
-</div>
-
-<h3>
-Networking
-</h3>
-
-<p>
-Learning IP addresses, Wi-Fi,
-routers and networking concepts.
-</p>
-
-</div>
-
-
-<div class="skill-card">
-
-<div class="skill-icon">
-🌍
-</div>
-
-<h3>
-Web Development
-</h3>
-
-<p>
-Learning HTML, CSS and JavaScript
-to create websites.
-</p>
-
-</div>
-
-
-<div class="skill-card">
-
-<div class="skill-icon">
-⚙️
-</div>
-
-<h3>
-Software
-</h3>
-
-<p>
-Learning software installation,
-configuration and troubleshooting.
-</p>
-
-</div>
-
-
-</div>
-
-</div>
-
-</section><!-- =========================
-     PROJECTS
-========================= -->
-
-<section id="projects">
-
-<style>
-
-.projects {
-    max-width: 1000px;
-    margin: auto;
-    padding: 80px 20px;
-}
-
-.projects h2 {
-    text-align: center;
-    font-size: 35px;
-    margin-bottom: 35px;
-}
-
-.projects h2 span {
-    color: #38bdf8;
-}
-
-.project-grid {
-    display: grid;
-    grid-template-columns:
-    repeat(3, 1fr);
-
-    gap: 20px;
-}
-
-.project-card {
-    background: #0b1728;
-
-    border: 1px solid #1e3a56;
-
-    border-radius: 15px;
-
-    overflow: hidden;
-
-    transition: 0.3s;
-}
-
-.project-card:hover {
-    transform: translateY(-7px);
-    border-color: #38bdf8;
+.skill-card p,
+.project-content p {
+    color: #a9bdd4;
 }
 
 .project-graphic {
     height: 130px;
-
     display: flex;
     align-items: center;
     justify-content: center;
-
     font-size: 50px;
-
-    background:
-    linear-gradient(
-        135deg,
-        #075985,
-        #172554
-    );
+    background: linear-gradient(135deg, #075985, #172554);
 }
 
 .project-content {
-    padding: 25px;
+    padding: 22px;
 }
-
-.project-content h3 {
-    margin-bottom: 10px;
-}
-
-.project-content p {
-    color: #8fa8bf;
-}
-
-
-/* CONTACT */
 
 .contact {
     max-width: 700px;
-
     margin: auto;
-
-    padding: 80px 20px;
-
-    text-align: center;
-}
-
-.contact h2 {
-    font-size: 35px;
-    margin-bottom: 25px;
-}
-
-.contact h2 span {
-    color: #38bdf8;
 }
 
 .contact-box {
-    background: #0b1728;
-
-    border: 1px solid #1e3a56;
-
-    border-radius: 15px;
-
     padding: 30px;
+    text-align: center;
 }
 
 .contact-box p {
-    margin: 15px 0;
+    margin: 12px 0;
     color: #a9bdd4;
+    overflow-wrap: anywhere;
 }
 
 .contact-box strong {
     color: #38bdf8;
 }
 
-
-/* MOBILE */
-
-@media(max-width:700px) {
-
-    .project-grid {
-        grid-template-columns: 1fr;
-    }
-
-}
-
-</style>
-
-
-<div class="projects">
-
-<h2>
-My <span>Projects</span>
-</h2>
-
-
-<div class="project-grid">
-
-
-<div class="project-card">
-
-<div class="project-graphic">
-🌐
-</div>
-
-<div class="project-content">
-
-<h3>
-Faisal's Website
-</h3>
-
-<p>
-My personal website built using
-HTML, CSS and JavaScript.
-</p>
-
-</div>
-
-</div>
-
-
-<div class="project-card">
-
-<div class="project-graphic">
-📱
-</div>
-
-<div class="project-content">
-
-<h3>
-Phone Coding
-</h3>
-
-<p>
-Learning programming and web development
-using my Android phone and Termux.
-</p>
-
-</div>
-
-</div>
-
-
-<div class="project-card">
-
-<div class="project-graphic">
-🚀
-</div>
-
-<div class="project-content">
-
-<h3>
-Future Projects
-</h3>
-
-<p>
-More technology projects will be added
-as I continue learning.
-</p>
-
-</div>
-
-</div>
-
-
-</div>
-
-</div>
-
-</section>
-
-
-<!-- =========================
-     CONTACT
-========================= -->
-
-<section id="contact">
-
-<div class="contact">
-
-<h2>
-Contact <span>Me</span>
-</h2>
-
-<div class="contact-box">
-
-<p>
-<strong>Email:</strong>
-faisalaudu7@gmail.com
-</p>
-
-<p>
-<strong>Phone:</strong>
-+233 533779640
-</p>
-
-<p>
-<strong>Location:</strong>
-Ghana
-</p>
-
-</div>
-
-</div>
-
-</section><!-- =========================
-     SIGN IN
-========================= -->
-
-<section id="signin">
-
-<style>
-
 .signin {
     max-width: 450px;
     margin: auto;
-    padding: 80px 20px;
-}
-
-.signin h2 {
-    text-align: center;
-    font-size: 35px;
-    margin-bottom: 30px;
-}
-
-.signin h2 span {
-    color: #38bdf8;
 }
 
 .signin-box {
-    background: #0b1728;
-    border: 1px solid #1e3a56;
-    border-radius: 15px;
-    padding: 30px;
+    padding: 25px;
 }
 
 .signin-box input {
     width: 100%;
-    box-sizing: border-box;
     padding: 14px;
     margin: 8px 0;
     border-radius: 8px;
@@ -701,14 +240,19 @@ Ghana
 
 .signin-box button {
     width: 100%;
-    padding: 14px;
+    padding: 13px;
     margin-top: 12px;
     border: none;
     border-radius: 8px;
     background: #38bdf8;
     color: #07111f;
     font-weight: bold;
-    font-size: 16px;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.signin-box button:hover {
+    opacity: 0.9;
 }
 
 .google-btn {
@@ -720,131 +264,212 @@ Ghana
     text-align: center;
     margin-top: 15px;
     color: #38bdf8;
+    overflow-wrap: anywhere;
 }
 
+footer {
+    text-align: center;
+    padding: 30px 20px;
+    border-top: 1px solid #1e3a56;
+    color: #8fa8bf;
+    margin-top: 30px;
+}
+
+@media (max-width: 700px) {
+    .nav {
+        flex-direction: column;
+    }
+
+    nav {
+        justify-content: center;
+    }
+
+    .skill-grid,
+    .project-grid {
+        grid-template-columns: 1fr;
+    }
+}
 </style>
+</head>
 
+<body>
 
-<div class="signin">
+<header>
+    <div class="nav">
+        <div class="logo">FAI<span>SAL</span></div>
 
-<h2>
-Sign <span>In</span>
-</h2>
+        <nav>
+            <a href="#home">Home</a>
+            <a href="#about">About</a>
+            <a href="#skills">Skills</a>
+            <a href="#projects">Projects</a>
+            <a href="#contact">Contact</a>
+            <a href="#signin">Sign In</a>
+        </nav>
+    </div>
+</header>
 
-<div class="signin-box">
+<section class="hero" id="home">
+    <div class="hero-content">
+        <small>WELCOME TO MY WEBSITE</small>
+        <h1>I'm <span>Faisal Audu.</span></h1>
 
-<input
-type="email"
-id="email"
-placeholder="Enter your email"
->
+        <p>
+            A Ghanaian technology learner exploring computer
+            hardware, software, networking and web development.
+        </p>
 
-<input
-type="password"
-id="password"
-placeholder="Enter your password"
->
-<button
-type="button"
-onclick="togglePassword()">
-Show
-</button>
+        <a href="#about" class="button">Discover More</a>
+    </div>
+</section>
 
-<button onclick="signIn()">
-Sign In
-</button>
+<section id="about">
+    <div class="container">
+        <h2>About <span>Me</span></h2>
 
-<button
-class="google-btn"
-onclick="googleSignIn()"
->
-Continue with Google
-</button>
+        <p class="about-text">
+            My name is Faisal. I am a Ghanaian interested in
+            technology. I am learning computer hardware, software,
+            networking and web development. I enjoy learning how
+            technology works and building projects using my phone.
+            My goal is to keep learning, improve my skills and create
+            useful technology projects.
+        </p>
+    </div>
+</section>
 
-<p id="loginMessage"></p>
-<div id="createAccountForm" style="display:none;">
+<section id="skills">
+    <div class="container">
+        <h2>My <span>Skills</span></h2>
 
-<input
-type="text"
-id="newName"
-placeholder="Your name">
+        <div class="skill-grid">
+            <div class="skill-card">
+                <div class="skill-icon">💻</div>
+                <h3>Computer Hardware</h3>
+                <p>Learning computer components, troubleshooting and maintenance.</p>
+            </div>
 
-<input
-type="email"
-id="newEmail"
-placeholder="Your email">
+            <div class="skill-card">
+                <div class="skill-icon">🌐</div>
+                <h3>Networking</h3>
+                <p>Learning IP addresses, Wi-Fi, routers and networking concepts.</p>
+            </div>
 
-<input
-type="password"
-id="newPassword"
-placeholder="Create password">
+            <div class="skill-card">
+                <div class="skill-icon">🌍</div>
+                <h3>Web Development</h3>
+                <p>Learning HTML, CSS and JavaScript to create websites.</p>
+            </div>
 
-<button onclick="registerAccount()">
-Create Account
-</button>
+            <div class="skill-card">
+                <div class="skill-icon">⚙️</div>
+                <h3>Software</h3>
+                <p>Learning software installation, configuration and troubleshooting.</p>
+            </div>
+        </div>
+    </div>
+</section>
 
-</div>
-<p style="text-align:center; margin-top:20px;">
-Don't have an account?
-<a href="#" onclick="createAccount(); return false;"
-style="color:#38bdf8;">
-Create Account
-</a>
-</p>
+<section id="projects">
+    <div class="container">
+        <h2>My <span>Projects</span></h2>
 
-</div>
+        <div class="project-grid">
+            <div class="project-card">
+                <div class="project-graphic">🌐</div>
+                <div class="project-content">
+                    <h3>Faisal's Website</h3>
+                    <p>My personal website built using HTML and CSS.</p>
+                </div>
+            </div>
 
-</div>
+            <div class="project-card">
+                <div class="project-graphic">📱</div>
+                <div class="project-content">
+                    <h3>Phone Coding</h3>
+                    <p>Learning programming and web development using Android and Termux.</p>
+                </div>
+            </div>
 
-</section><script>
+            <div class="project-card">
+                <div class="project-graphic">🚀</div>
+                <div class="project-content">
+                    <h3>Future Projects</h3>
+                    <p>Developing new ideas and technology projects as I learn.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 
-function signIn() {
+<section id="contact">
+    <div class="container contact">
+        <h2>Contact <span>Me</span></h2>
 
-    let email = document.getElementById("email").value;
-    let password = document.getElementById("password").value;
-    let message = document.getElementById("loginMessage");
+        <div class="contact-box">
+            <p><strong>Email:</strong> faisalaudu7@gmail.com</p>
+            <p><strong>Phone:</strong> +233 533779640</p>
+            <p><strong>Location:</strong> Ghana</p>
+        </div>
+    </div>
+</section>
 
-    if (email === "" || password === "") {
+<section id="signin">
+    <div class="container signin">
+        <h2>Sign <span>In</span></h2>
 
-        message.textContent =
-        "Please enter your email and password.";
+        <div class="signin-box">
+            <form id="signInForm">
+                <input type="email" id="email" placeholder="Enter your email" autocomplete="email" required>
 
-    } else {
+                <input type="password" id="password" placeholder="Enter your password" autocomplete="current-password" required>
 
-        message.textContent =
-        "Sign in details received!";
+                <button type="button" id="togglePassword">Show Password</button>
 
-    }
-}
+                <button type="submit">Sign In</button>
+            </form>
 
+            <button type="button" class="google-btn" id="googleButton">
+                Continue with Google
+            </button>
 
-function googleSignIn() {
+            <p id="loginMessage">
+                Sign-in services have not been connected yet.
+            </p>
+        </div>
+    </div>
+</section>
 
-    document.getElementById("loginMessage").textContent =
-    "Google sign-in will be connected later.";
+<footer>
+    <p>© 2026 Faisal — Built with HTML, CSS &amp; JavaScript</p>
+    <p>Learning. Building. Growing.</p>
+</footer>
 
-}
-function createAccount() {
-
-    document.getElementById("createAccountForm").style.display = "block";
-
-}
 <script>
+const passwordInput = document.getElementById("password");
+const message = document.getElementById("loginMessage");
 
-function togglePassword() {
-
-    let password = document.getElementById("password");
-
-    if (password.type === "password") {
-        password.type = "text";
+document.getElementById("togglePassword").addEventListener("click", function () {
+    if (passwordInput.type === "password") {
+        passwordInput.type = "text";
+        this.textContent = "Hide Password";
     } else {
-        password.type = "password";
+        passwordInput.type = "password";
+        this.textContent = "Show Password";
     }
+});
 
-}
+document.getElementById("signInForm").addEventListener("submit", function (event) {
+    event.preventDefault();
+    message.textContent =
+        "The sign-in service is not connected yet. No password has been sent or saved.";
+});
 
-}
+document.getElementById("googleButton").addEventListener("click", function () {
+    message.textContent =
+        "Google sign-in is not connected yet. This button is only a demonstration.";
+});
 </script>
-<footer style="text-align:center;padding:30px 20px;border-top:1px solid #1e3a56;color:#8fa8bf;margin-top:30px;"><p>© 2026 Faisal — Built with HTML, CSS & JavaScript</p><p>Learning. Building. Growing.</p></footer>
+
 </body>
 </html>
